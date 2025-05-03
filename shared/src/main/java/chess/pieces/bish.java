@@ -7,15 +7,23 @@ import java.util.Collection;
 
 public class bish extends ChessPiece {
 
+
+    //make bishop color
     public bish (ChessGame.TeamColor color) {
         super(color, PieceType.BISHOP);
     }
 
+    //taken from ChessPiece
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
+        Collection<ChessMove> moves = new ArrayList<>(); //save moves in array
+
+
+        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}; //declare all diagnol directons
+
+
+        //iterate through all directions to get all possible positions
         for (int[] dir : directions) {
             int row = myPosition.getRow();
             int col = myPosition.getColumn();

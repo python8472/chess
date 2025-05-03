@@ -10,6 +10,7 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    //store color and type
     protected final ChessGame.TeamColor pieceColor; //add to store color
     protected final PieceType type; //add to store type
 

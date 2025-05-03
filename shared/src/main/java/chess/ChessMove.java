@@ -12,25 +12,38 @@ package chess;
  *    - pieceStartPos
  *    - pieceEndPos
  *    - promotionPiece
+ *
+ *    get them from ChessMove function
+ *
+ *    finish other two functions
  */
 public class ChessMove {
 
+    //store positions and promo piece
+    private final ChessPosition pieceStartPos;
+    private final ChessPosition pieceEndPos;
+    private final ChessPiece.PieceType promotionPiece;
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        //get positions and promo
+        this.pieceStartPos = startPosition;
+        this.pieceEndPos = endPosition;
+        this.promotionPiece = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        throw new RuntimeException("Not implemented");
+        return pieceStartPos;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        throw new RuntimeException("Not implemented");
+        return pieceEndPos;
     }
 
     /**
@@ -40,6 +53,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotionPiece;
     }
 }
