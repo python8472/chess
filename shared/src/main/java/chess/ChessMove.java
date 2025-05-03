@@ -5,6 +5,13 @@ package chess;
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
+ *
+ *
+ * My little To-do list:
+ * 1. Add fields to ChessPosition and ChessPiece
+ *    - pieceStartPos
+ *    - pieceEndPos
+ *    - promotionPiece
  */
 public class ChessMove {
 
