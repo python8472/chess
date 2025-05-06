@@ -5,42 +5,30 @@ import chess.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class bish extends ChessPiece {
+public class bish {
 
+    public static Collection<ChessMove> getBishMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
-    //make bishop color
-    public bish (ChessGame.TeamColor color) {
-        super(color, PieceType.BISHOP);
-    }
-
-    //taken from ChessPiece
-    @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-
-        Collection<ChessMove> moves = new ArrayList<>(); //save moves in array
-
-
-        int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}; //declare all diagnol directons
-
-
-        //iterate through all directions to get all possible positions
         for (int[] dir : directions) {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
+            int row = start.getRow();
+            int col = start.getColumn();
 
             while (true) {
                 row += dir[0];
                 col += dir[1];
+
                 if (row < 1 || row > 8 || col < 1 || col > 8) break;
 
                 ChessPosition newPos = new ChessPosition(row, col);
-                ChessPiece destPiece = board.getPiece(newPos);
+                ChessPiece dest = board.getPiece(newPos);
 
-                if (destPiece == null) {
-                    moves.add(new ChessMove(myPosition, newPos, null));
+                if (dest == null) {
+                    moves.add(new ChessMove(start, newPos, null));
                 } else {
-                    if (destPiece.getTeamColor() != this.getTeamColor()) {
-                        moves.add(new ChessMove(myPosition, newPos, null));
+                    if (dest.getTeamColor() != color) {
+                        moves.add(new ChessMove(start, newPos, null));
                     }
                     break;
                 }

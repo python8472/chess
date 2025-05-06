@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import chess.pieces.bish;
 
 /**
  * Represents a single chess piece
@@ -52,7 +54,14 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
-    }
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition){
+        switch (type) {
+            case BISHOP:
+                return bish.getBishMoves(board, myPosition, pieceColor);
+            // add more cases like ROOK, etc., as needed
+            default:
+                return new ArrayList<>();
+        }
+        }
+
 }
