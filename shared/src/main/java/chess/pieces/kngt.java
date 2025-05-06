@@ -1,12 +1,9 @@
 package chess.pieces;
-
 import chess.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class kngt {
-
     public static Collection<ChessMove> getKngtMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         Collection<ChessMove> moves = new ArrayList<>();
 

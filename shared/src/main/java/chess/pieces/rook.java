@@ -1,17 +1,12 @@
 package chess.pieces;
 
 import chess.*;
-
-import java.util.ArrayList;
 import java.util.Collection;
-
 import static chess.pieces.MoveHelper.getMoves;
 
 public class rook {
 
     public static Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
-        Collection<ChessMove> moves = new ArrayList<>();
-
         // 4 directions: N, S, E, W
         int[][] directions = {
                 {-1, 0}, {1, 0},  // N, S

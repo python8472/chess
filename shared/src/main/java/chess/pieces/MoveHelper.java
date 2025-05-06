@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MoveHelper {
-
     public static Collection<ChessMove> getMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color,
                                                       int[][] directions, boolean isSliding) {
         Collection<ChessMove> moves = new ArrayList<>();
-
         for (int[] dir : directions) {
             int row = start.getRow();
             int col = start.getColumn();

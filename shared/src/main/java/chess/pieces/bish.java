@@ -1,16 +1,12 @@
 package chess.pieces;
 
 import chess.*;
-
-import java.util.ArrayList;
 import java.util.Collection;
-
 import static chess.pieces.MoveHelper.getMoves;
 
 public class bish {
 
     public static Collection<ChessMove> getBishMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
-        Collection<ChessMove> moves = new ArrayList<>();
 
         // Bishop moves diagonally: NE, NW, SE, SW
         int[][] directions = {

@@ -1,17 +1,12 @@
 package chess.pieces;
 
 import chess.*;
-
-import java.util.ArrayList;
 import java.util.Collection;
-
 import static chess.pieces.MoveHelper.getMoves;
 
 public class queen {
 
     public static Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
-        Collection<ChessMove> moves = new ArrayList<>();
-
         // 8 directions: N, S, E, W, NE, NW, SE, SW
         int[][] directions = {
                 {-1, 0}, {1, 0},  // N, S

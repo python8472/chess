@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class pawn {
-
     public static Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         Collection<ChessMove> moves = new ArrayList<>();
 
         int direction = (color == ChessGame.TeamColor.WHITE) ? 1 : -1; //get direction
         int startRow = (color == ChessGame.TeamColor.WHITE) ? 2 : 7; //get start row for 1 or 2 movement
-
         int row = start.getRow();
         int col = start.getColumn();
 
