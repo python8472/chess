@@ -20,6 +20,14 @@ public class ChessPosition {
     }
 
     @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "pieceRow=" + pieceRow +
+                ", pieceCol=" + pieceCol +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
@@ -31,14 +39,6 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(pieceRow, pieceCol);
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPosition{" +
-                "pieceRow=" + pieceRow +
-                ", pieceCol=" + pieceCol +
-                '}';
     }
 
     /**

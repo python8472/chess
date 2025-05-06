@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-import chess.pieces.bish;
-import chess.pieces.king;
+import chess.pieces.*;
 
 /**
  * Represents a single chess piece
@@ -44,10 +43,17 @@ public class ChessPiece {
     }
 
     @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }
@@ -57,13 +63,6 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
-    }
 
     /**
      * @return which type of chess piece this piece is
@@ -80,13 +79,14 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition){
-        switch (type) {
-            case BISHOP:
-                return bish.getBishMoves(board, myPosition, pieceColor);
-            case KING:
-                return king.getKingMoves(board, myPosition, pieceColor);
-            default:
-                return new ArrayList<>();
-        }
+        return switch (type) {
+            case BISHOP -> bish.getBishMoves(board, myPosition, pieceColor);
+            case KING -> king.getKingMoves(board, myPosition, pieceColor);
+            case KNIGHT -> kngt.getKngtMoves(board, myPosition, pieceColor);
+            case PAWN -> pawn.getPawnMoves(board, myPosition, pieceColor);
+            case QUEEN -> queen.getQueenMoves(board, myPosition, pieceColor);
+            case ROOK -> rook.getRookMoves(board, myPosition, pieceColor);
+            default -> new ArrayList<>();
+        };
     }
 }
