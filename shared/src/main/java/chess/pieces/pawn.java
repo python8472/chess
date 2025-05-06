@@ -10,25 +10,25 @@ public class pawn {
     public static Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        int direction = (color == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int startRow = (color == ChessGame.TeamColor.WHITE) ? 2 : 7;
+        int direction = (color == ChessGame.TeamColor.WHITE) ? 1 : -1; //get direction
+        int startRow = (color == ChessGame.TeamColor.WHITE) ? 2 : 7; //get start row for 1 or 2 movement
 
         int row = start.getRow();
         int col = start.getColumn();
 
-        // One step forward
+        // One step forward based on startrow
         ChessPosition oneForward = new ChessPosition(row + direction, col);
         if (inBounds(oneForward) && board.getPiece(oneForward) == null) {
             addMoveWithOptionalPromotion(moves, start, oneForward, color);
 
-            // Two steps forward
+            // Two steps forward based on startrow
             ChessPosition twoForward = new ChessPosition(row + 2 * direction, col);
             if (row == startRow && inBounds(twoForward) && board.getPiece(twoForward) == null) {
                 moves.add(new ChessMove(start, twoForward, null));
             }
         }
 
-        // Diagonal captures
+        // Diagonal captures by checking other colors
         for (int dCol : new int[]{-1, 1}) {
             int newCol = col + dCol;
             int newRow = row + direction;
