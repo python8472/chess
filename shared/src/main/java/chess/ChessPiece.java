@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import chess.pieces.bish;
+import chess.pieces.king;
 
 /**
  * Represents a single chess piece
@@ -82,10 +83,10 @@ public class ChessPiece {
         switch (type) {
             case BISHOP:
                 return bish.getBishMoves(board, myPosition, pieceColor);
-            // add more cases like ROOK, etc., as needed
+            case KING:
+                return king.getKingMoves(board, myPosition, pieceColor);
             default:
                 return new ArrayList<>();
         }
-        }
-
+    }
 }
