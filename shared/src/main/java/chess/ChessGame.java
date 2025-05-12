@@ -127,6 +127,21 @@ public class ChessGame {
         return false;
     }
 
+    //Helper function for clone the board so no crazy stuff happens
+    private ChessBoard cloneBoard() {
+        ChessBoard newBoard = new ChessBoard();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = c_board.getPiece(pos);
+                if (piece != null) {
+                    newBoard.addPiece(pos, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
+                }
+            }
+        }
+        return newBoard;
+    }
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -134,7 +149,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) return false;
+        else return true;
     }
 
     /**
