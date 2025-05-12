@@ -150,8 +150,29 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) return false;
-        else return true;
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = c_board.getPiece(pos);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    for (ChessMove move : piece.pieceMoves(c_board, pos)) {
+                        ChessBoard testBoard = cloneBoard();
+                        testBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType()));
+                        testBoard.addPiece(pos, null);
+                        ChessGame testGame = new ChessGame();
+                        testGame.setBoard(testBoard);
+                        if (!testGame.isInCheck(teamColor)) {
+                            return false; // Found a legal escape
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
+
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
