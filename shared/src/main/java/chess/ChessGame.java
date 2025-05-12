@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -44,6 +46,49 @@ public class ChessGame {
     }
 
     /**
+     * Finds all possible pseudo-legal moves from all pieces of the given team.
+     * @param teamColor the team to scan for
+     * @return a list of all moves their pieces can make
+     */
+    private List<ChessMove> allTeamMoves(TeamColor teamColor) {
+        List<ChessMove> moves = new ArrayList<>();
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = c_board.getPiece(pos);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    moves.addAll(piece.pieceMoves(c_board, pos));
+                }
+            }
+        }
+
+        return moves;
+    }
+
+    /**
+     * Helper function
+     */
+
+    private ChessPosition findKing(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = c_board.getPiece(pos);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return pos;
+                }
+            }
+        }
+        return null; // shouldn't happen if the board is valid
+    }
+
+    private TeamColor oppositeTeam(TeamColor team) {
+        return team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+    }
+
+
+    /**
      * Gets a valid moves for a piece at the given location
      *
      * @param startPosition the piece to get valid moves for
@@ -71,7 +116,15 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPos = findKing(teamColor);
+        if (kingPos == null) return false;
+
+        for (ChessMove move : allTeamMoves(oppositeTeam(teamColor))) {
+            if (move.getEndPosition().equals(kingPos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
