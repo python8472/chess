@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -213,6 +214,28 @@ public class ChessGame {
         return true;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return whoseTurn == chessGame.whoseTurn && Objects.equals(c_board, chessGame.c_board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(whoseTurn, c_board);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "whoseTurn=" + whoseTurn +
+                ", c_board=" + c_board +
+                '}';
+    }
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
