@@ -16,7 +16,8 @@ public class ChessGame {
     private ChessBoard c_board = new ChessBoard();
 
     public ChessGame() {
-
+        c_board = new ChessBoard();
+        c_board.resetBoard();  // gotta get default
     }
 
     /**
@@ -96,7 +97,27 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = c_board.getPiece(startPosition);
+
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+
+        for (ChessMove move : piece.pieceMoves(c_board, startPosition)) {
+            // Clone board and simulate move
+            ChessBoard testBoard = cloneBoard();
+            testBoard.addPiece(startPosition, null);
+
+            ChessPiece.PieceType promotedType = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType();
+            testBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), promotedType));
+
+            ChessGame testGame = new ChessGame();
+            testGame.setBoard(testBoard);
+
+            if (!testGame.isInCheck(piece.getTeamColor())) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
 
     /**
@@ -106,7 +127,26 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = c_board.getPiece(move.getStartPosition());
+
+        // No piece or wrong team
+        if (piece == null || piece.getTeamColor() != whoseTurn) {
+            throw new InvalidMoveException("No piece at start or not " + whoseTurn + "'s turn");
+        }
+
+        // Get valid moves for this piece
+        Collection<ChessMove> valid = validMoves(move.getStartPosition());
+        if (valid == null || !valid.contains(move)) {
+            throw new InvalidMoveException("Invalid move attempted: " + move);
+        }
+
+        // Move the piece
+        c_board.addPiece(move.getStartPosition(), null);
+        ChessPiece.PieceType finalType = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType();
+        c_board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), finalType));
+
+        // Switch turn
+        whoseTurn = oppositeTeam(whoseTurn);
     }
 
     /**
