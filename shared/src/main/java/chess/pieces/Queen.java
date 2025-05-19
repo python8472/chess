@@ -4,7 +4,7 @@ import chess.*;
 import java.util.Collection;
 import static chess.pieces.MoveHelper.getMoves;
 
-public class queen {
+public class Queen {
 
     public static Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         // 8 directions: N, S, E, W, NE, NW, SE, SW

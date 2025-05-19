@@ -80,12 +80,12 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition){
         return switch (type) {
-            case BISHOP -> bish.getBishMoves(board, myPosition, pieceColor);
-            case KING -> king.getKingMoves(board, myPosition, pieceColor);
-            case KNIGHT -> kngt.getKngtMoves(board, myPosition, pieceColor);
-            case PAWN -> pawn.getPawnMoves(board, myPosition, pieceColor);
-            case QUEEN -> queen.getQueenMoves(board, myPosition, pieceColor);
-            case ROOK -> rook.getRookMoves(board, myPosition, pieceColor);
+            case BISHOP -> Bish.getBishMoves(board, myPosition, pieceColor);
+            case KING -> King.getKingMoves(board, myPosition, pieceColor);
+            case KNIGHT -> Kngt.getKngtMoves(board, myPosition, pieceColor);
+            case PAWN -> Pawn.getPawnMoves(board, myPosition, pieceColor);
+            case QUEEN -> Queen.getQueenMoves(board, myPosition, pieceColor);
+            case ROOK -> Rook.getRookMoves(board, myPosition, pieceColor);
             default -> new ArrayList<>();
         };
     }

@@ -4,7 +4,7 @@ import chess.*;
 import java.util.Collection;
 import static chess.pieces.MoveHelper.getMoves;
 
-public class rook {
+public class Rook {
 
     public static Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         // 4 directions: N, S, E, W

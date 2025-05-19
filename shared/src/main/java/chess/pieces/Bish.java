@@ -4,7 +4,7 @@ import chess.*;
 import java.util.Collection;
 import static chess.pieces.MoveHelper.getMoves;
 
-public class bish {
+public class Bish {
 
     public static Collection<ChessMove> getBishMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
 

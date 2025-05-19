@@ -5,7 +5,7 @@ import chess.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class pawn {
+public class Pawn {
     public static Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
         Collection<ChessMove> moves = new ArrayList<>();
 

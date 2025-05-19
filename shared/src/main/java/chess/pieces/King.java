@@ -3,7 +3,7 @@ import chess.*;
 import java.util.Collection;
 import static chess.pieces.MoveHelper.getMoves;
 
-public class king {
+public class King {
 
     public static Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition start, ChessGame.TeamColor color) {
 
