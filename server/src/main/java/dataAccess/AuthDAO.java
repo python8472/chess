@@ -1,6 +1,6 @@
 package dataAccess;
 
-import shared.model.AuthData;
+import shared.src.main.java.model.AuthData;
 
 public interface AuthDAO {
     /**
