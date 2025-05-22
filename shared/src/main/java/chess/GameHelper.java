@@ -6,24 +6,39 @@ public class GameHelper {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    for (ChessMove move : piece.pieceMoves(board, pos)) {
-                        ChessBoard testBoard = cloneBoard(board);
-                        testBoard.addPiece(move.getEndPosition(),
-                                new ChessPiece(piece.getTeamColor(),
-                                        move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType()));
-                        testBoard.addPiece(pos, null);
+                if (!isEligiblePiece(piece, teamColor)) continue;
 
-                        ChessGame testGame = new ChessGame();
-                        testGame.setBoard(testBoard);
-                        if (!testGame.isInCheck(teamColor)) {
-                            return false;
-                        }
-                    }
+                if (canPieceEscapeCheck(piece, pos, board, teamColor)) {
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+    private static boolean isEligiblePiece(ChessPiece piece, ChessGame.TeamColor teamColor) {
+        return piece != null && piece.getTeamColor() == teamColor;
+    }
+
+    private static boolean canPieceEscapeCheck(ChessPiece piece, ChessPosition pos, ChessBoard board, ChessGame.TeamColor teamColor) {
+        for (ChessMove move : piece.pieceMoves(board, pos)) {
+            if (isLegalMove(move, piece, pos, board, teamColor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isLegalMove(ChessMove move, ChessPiece piece, ChessPosition from, ChessBoard board, ChessGame.TeamColor teamColor) {
+        ChessBoard testBoard = cloneBoard(board);
+        ChessPiece newPiece = new ChessPiece(piece.getTeamColor(),
+                move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType());
+        testBoard.addPiece(move.getEndPosition(), newPiece);
+        testBoard.addPiece(from, null);
+
+        ChessGame testGame = new ChessGame();
+        testGame.setBoard(testBoard);
+        return !testGame.isInCheck(teamColor);
     }
 
     private static ChessBoard cloneBoard(ChessBoard board) {
