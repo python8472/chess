@@ -15,6 +15,8 @@ public class Server {
         post("/session", userHandler.handleLogin);
         delete("/session", userHandler.handleLogout);
 
+        GameHandler gameHandler = new GameHandler();
+        get("/game", gameHandler.handleListGames);
 
         // Initialize Spark
         init();
