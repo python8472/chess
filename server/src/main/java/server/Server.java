@@ -1,13 +1,8 @@
 package server;
 
-import spark.*;
 import static spark.Spark.*;
 
 public class Server {
-
-    public static void main(String[] args) {
-        new Server().run(8080);
-    }
 
     public int run(int desiredPort) {
         port(desiredPort);
