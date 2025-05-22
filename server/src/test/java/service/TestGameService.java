@@ -1,23 +1,19 @@
 package service;
-
 import dataAccess.*;
 import org.junit.jupiter.api.*;
 import request.*;
 import result.*;
-import model.AuthData;
-import service.GameService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
 
     private GameService service;
-    private AuthDAO authDAO;
     private String token;
 
     @BeforeEach
     public void setup() {
-        authDAO = new MemoryAuthDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         token = authDAO.createAuth("wes").getAuthToken();
         service = new GameService(gameDAO, authDAO);
@@ -49,6 +45,14 @@ public class TestGameService {
     public void testListGamesNegative() {
         ListGamesResult result = service.listGames("bad-token");
         assertNotNull(result.getMessage());
+    }
+
+    @Test
+    public void testJoinGamePositive() {
+        int validGameID = service.createGame(token, new CreateGameRequest("Joinable Game")).getGameID();
+        JoinGameRequest request = new JoinGameRequest("WHITE", validGameID);
+        JoinGameResult result = service.joinGame(token, request);
+        assertNull(result.getMessage());
     }
 
     @Test

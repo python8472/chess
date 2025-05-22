@@ -1,21 +1,17 @@
 package service;
-
 import dataAccess.*;
-import model.*;
+import model.UserData;
 import org.junit.jupiter.api.*;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestClear {
-
+public class TestClearService {
     private UserDAO userDAO;
     private AuthDAO authDAO;
     private GameDAO gameDAO;
 
     @BeforeEach
-    void setUp() {
+    public void setup() {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
@@ -27,8 +23,7 @@ public class TestClear {
     }
 
     @Test
-    @DisplayName("Clear Wipes All Tables")
-    void testClearAllMemoryDAOs() {
+    public void testClearPositive() {
         // Sanity check before clearing
         assertNotNull(userDAO.getUser("nick_j"));
         assertNotNull(authDAO.getAuth(authDAO.getAllAuthTokens().iterator().next()));
@@ -43,5 +38,15 @@ public class TestClear {
         assertNull(userDAO.getUser("nick_j"));
         assertTrue(authDAO.getAllAuthTokens().isEmpty(), "Auth tokens not cleared");
         assertTrue(gameDAO.listGames().isEmpty(), "Games not cleared");
+    }
+
+    @Test
+    public void testClearNegative() {
+        userDAO.createUser(new UserData("nope", "p", "e"));
+        assertNotNull(userDAO.getUser("nope"));
+        userDAO.clear();
+        authDAO.clear();
+        gameDAO.clear();
+        assertNull(userDAO.getUser("nope"));
     }
 }
