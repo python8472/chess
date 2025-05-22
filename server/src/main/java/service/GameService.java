@@ -56,21 +56,18 @@ public class GameService {
             return new JoinGameResult("Error: bad request");
         }
 
-        GameData game = gameDAO.getGame(gameID);
-        String username = auth.getUsername();
-
         String color = request.getPlayerColor();
-
         if (color == null) {
-            // Observer join is valid
-            return new JoinGameResult();
+            return new JoinGameResult("Error: bad request");
         }
 
         color = color.trim().toUpperCase();
-
         if (!color.equals("WHITE") && !color.equals("BLACK")) {
-            return new JoinGameResult("Error: bad request");
+            return new JoinGameResult("Error: bad request");  // <-- this is key
         }
+
+        GameData game = gameDAO.getGame(gameID);
+        String username = auth.getUsername();
 
         switch (color) {
             case "WHITE" -> {
@@ -88,6 +85,7 @@ public class GameService {
         }
 
         gameDAO.updateGame(game);
-        return new JoinGameResult();
+        return new JoinGameResult();  // success
     }
+
 }

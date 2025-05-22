@@ -54,7 +54,6 @@ public class GameHandler {
     public Route handleJoinGame = (Request req, Response res) -> {
         String authToken = req.headers("Authorization");
         JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
-
         JoinGameResult result = gameService.joinGame(authToken, request);
 
         if (result.getMessage() != null) {
