@@ -1,33 +1,34 @@
 package server;
 
-import static spark.Spark.*;
+import spark.Spark;
 
 public class Server {
 
     public int run(int desiredPort) {
-        port(desiredPort);
-        staticFiles.location("web");
+        Spark.port(desiredPort);
+        Spark.staticFiles.location("web");
 
-        // get endpoints
         UserHandler userHandler = new UserHandler();
-        post("/user", userHandler.handleRegister);
-        post("/session", userHandler.handleLogin);
-        delete("/session", userHandler.handleLogout);
-
         GameHandler gameHandler = new GameHandler();
-        get("/game", gameHandler.handleListGames);
-        post("/game", gameHandler.handleCreateGame);
-        put("/game", gameHandler.handleJoinGame);
+        ClearHandler clearHandler = new ClearHandler();
 
+        Spark.post("/user", userHandler.handleRegister);
+        Spark.post("/session", userHandler.handleLogin);
+        Spark.delete("/session", userHandler.handleLogout);
 
-        // Initialize Spark
-        init();
-        awaitInitialization();
-        return port();
+        Spark.get("/game", gameHandler.handleListGames);
+        Spark.post("/game", gameHandler.handleCreateGame);
+        Spark.put("/game", gameHandler.handleJoinGame);
+
+        Spark.delete("/db", clearHandler.handle);
+
+        Spark.init();
+        Spark.awaitInitialization();
+        return Spark.port();
     }
 
     public void stop() {
-        stop();
-        awaitStop();
+        Spark.stop();
+        Spark.awaitStop();
     }
 }
