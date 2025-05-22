@@ -55,21 +55,12 @@ public class GameHandler {
         String authToken = req.headers("Authorization");
         JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
 
-        // Defensive input validation (for bad color or null ID)
-        if (request.getGameID() == null ||
-                (request.getPlayerColor() != null &&
-                        !request.getPlayerColor().equalsIgnoreCase("white") &&
-                        !request.getPlayerColor().equalsIgnoreCase("black"))) {
-            res.status(400);
-            return gson.toJson(new JoinGameResult("Error: bad request"));
-        }
-
         JoinGameResult result = gameService.joinGame(authToken, request);
 
         if (result.getMessage() != null) {
-            if (result.getMessage().contains("bad request")) {
+            if (result.getMessage().toLowerCase().contains("bad request")) {
                 res.status(400);
-            } else if (result.getMessage().contains("unauthorized")) {
+            } else if (result.getMessage().toLowerCase().contains("unauthorized")) {
                 res.status(401);
             } else {
                 res.status(403);
@@ -80,5 +71,4 @@ public class GameHandler {
 
         return gson.toJson(result);
     };
-
 }

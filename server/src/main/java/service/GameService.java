@@ -4,6 +4,7 @@ import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import model.TeamColor;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import result.CreateGameResult;
@@ -50,20 +51,23 @@ public class GameService {
             return new JoinGameResult("Error: unauthorized");
         }
 
-        if (request.getGameID() == null || gameDAO.getGame(request.getGameID()) == null) {
+        Integer gameID = request.getGameID();
+        if (gameID == null || gameDAO.getGame(gameID) == null) {
             return new JoinGameResult("Error: bad request");
         }
 
-        GameData game = gameDAO.getGame(request.getGameID());
+        GameData game = gameDAO.getGame(gameID);
         String username = auth.getUsername();
 
         String color = request.getPlayerColor();
+
         if (color == null) {
-            // Observer join
-            return new JoinGameResult(); // success
+            // Observer join is valid
+            return new JoinGameResult();
         }
 
-        color = color.toUpperCase();
+        color = color.trim().toUpperCase();
+
         if (!color.equals("WHITE") && !color.equals("BLACK")) {
             return new JoinGameResult("Error: bad request");
         }
@@ -84,6 +88,6 @@ public class GameService {
         }
 
         gameDAO.updateGame(game);
-        return new JoinGameResult(); // success
+        return new JoinGameResult();
     }
 }
