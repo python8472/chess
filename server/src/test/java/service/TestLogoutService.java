@@ -1,10 +1,9 @@
 package service;
 
-import dataAccess.*;
+import dataaccess.*;
 import org.junit.jupiter.api.*;
 import result.LogoutResult;
 import model.AuthData;
-import service.LogoutService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

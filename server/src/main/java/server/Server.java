@@ -1,11 +1,11 @@
 package server;
 
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import service.UserService;
 import service.LoginService;
 import service.LogoutService;
@@ -19,24 +19,24 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        // Shared DAO instances
+        //shared DAO instances
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
 
-        // Shared service instances
+        //shared service instances
         UserService userService = new UserService(userDAO, authDAO);
         LoginService loginService = new LoginService(userDAO, authDAO);
         LogoutService logoutService = new LogoutService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
 
-        // Handlers with shared dependencies
+        //handlers
         UserHandler userHandler = new UserHandler(userService, loginService, logoutService);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
 
-        // Route registration
+        //make routes
         Spark.post("/user", userHandler.handleRegister);
         Spark.post("/session", userHandler.handleLogin);
         Spark.delete("/session", userHandler.handleLogout);

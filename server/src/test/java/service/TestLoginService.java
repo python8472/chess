@@ -1,25 +1,22 @@
 package service;
 
-import dataAccess.*;
+import dataaccess.*;
 import org.junit.jupiter.api.*;
 import request.*;
 import result.*;
-import service.LoginService;
-import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestLoginService {
 
     private LoginService service;
-    private UserService userService;
 
     @BeforeEach
     public void setup() {
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         service = new LoginService(userDAO, authDAO);
-        userService = new UserService(userDAO, authDAO);
+        UserService userService = new UserService(userDAO, authDAO);
         userService.register(new RegisterRequest("nick_j", "pw", "woof.com"));
     }
 

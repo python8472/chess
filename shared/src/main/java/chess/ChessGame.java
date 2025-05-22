@@ -14,14 +14,14 @@ import java.util.Objects;
 public class ChessGame {
 
     private TeamColor whoseTurn = TeamColor.WHITE; //to track turns
-    private ChessBoard c_board = new ChessBoard();
+    private ChessBoard cBoard;
     private ChessPosition dumbPawn; // pawn that is empassant eligible
 
 
 
     public ChessGame() {
-        c_board = new ChessBoard();
-        c_board.resetBoard();  // gotta get default
+        cBoard = new ChessBoard();
+        cBoard.resetBoard();  // gotta get default
     }
 
     /**
@@ -61,9 +61,9 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = c_board.getPiece(pos);
+                ChessPiece piece = cBoard.getPiece(pos);
                 if (piece != null && piece.getTeamColor() == teamColor) {
-                    moves.addAll(piece.pieceMoves(c_board, pos));
+                    moves.addAll(piece.pieceMoves(cBoard, pos));
                 }
             }
         }
@@ -79,7 +79,7 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = c_board.getPiece(pos);
+                ChessPiece piece = cBoard.getPiece(pos);
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                     return pos;
                 }
@@ -101,12 +101,12 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = c_board.getPiece(startPosition);
+        ChessPiece piece = cBoard.getPiece(startPosition);
         if (piece == null) return null;
 
         List<ChessMove> legalMoves = new ArrayList<>();
 
-        for (ChessMove move : piece.pieceMoves(c_board, startPosition)) {
+        for (ChessMove move : piece.pieceMoves(cBoard, startPosition)) {
             ChessBoard simulatedBoard = cloneBoard();
             ChessPiece.PieceType finalType = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType();
 
@@ -152,7 +152,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece piece = c_board.getPiece(move.getStartPosition());
+        ChessPiece piece = cBoard.getPiece(move.getStartPosition());
 
         if (piece == null || piece.getTeamColor() != whoseTurn) {
             throw new InvalidMoveException("Invalid turn " + move.getStartPosition());
@@ -168,16 +168,16 @@ public class ChessGame {
         // Handle en passant with dumbPawn
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int dir = (piece.getTeamColor() == TeamColor.WHITE) ? -1 : 1;
-            if (move.getEndPosition().equals(dumbPawn) && Math.abs(move.getStartPosition().getColumn() - move.getEndPosition().getColumn()) == 1 && c_board.getPiece(move.getEndPosition()) == null) {
+            if (move.getEndPosition().equals(dumbPawn) && Math.abs(move.getStartPosition().getColumn() - move.getEndPosition().getColumn()) == 1 && cBoard.getPiece(move.getEndPosition()) == null) {
                 ChessPosition captured = new ChessPosition(move.getEndPosition().getRow() - dir, move.getEndPosition().getColumn());
-                c_board.addPiece(captured, null); // remove captured pawn
+                cBoard.addPiece(captured, null); // remove captured pawn
             }
         }
 
 
         // Perform the move
-        c_board.addPiece(move.getStartPosition(), null);
-        c_board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), finalType));
+        cBoard.addPiece(move.getStartPosition(), null);
+        cBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), finalType));
 
         // Update en passant state
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
@@ -214,7 +214,7 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = c_board.getPiece(pos);
+                ChessPiece piece = cBoard.getPiece(pos);
                 if (piece != null) {
                     newBoard.addPiece(pos, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
                 }
@@ -231,27 +231,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) return false;
-
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = c_board.getPiece(pos);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    for (ChessMove move : piece.pieceMoves(c_board, pos)) {
-                        ChessBoard testBoard = cloneBoard();
-                        testBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType()));
-                        testBoard.addPiece(pos, null);
-                        ChessGame testGame = new ChessGame();
-                        testGame.setBoard(testBoard);
-                        if (!testGame.isInCheck(teamColor)) {
-                            return false; // Found a legal escape
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
+        return GameHelper.hasNoLegalMoves(cBoard, teamColor);
     }
 
 
@@ -261,19 +241,19 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return whoseTurn == chessGame.whoseTurn && Objects.equals(c_board, chessGame.c_board);
+        return whoseTurn == chessGame.whoseTurn && Objects.equals(cBoard, chessGame.cBoard);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(whoseTurn, c_board);
+        return Objects.hash(whoseTurn, cBoard);
     }
 
     @Override
     public String toString() {
         return "ChessGame{" +
                 "whoseTurn=" + whoseTurn +
-                ", c_board=" + c_board +
+                ", c_board=" + cBoard +
                 '}';
     }
 
@@ -286,27 +266,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) return false;
-
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = c_board.getPiece(pos);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    for (ChessMove move : piece.pieceMoves(c_board, pos)) {
-                        ChessBoard testBoard = cloneBoard();
-                        testBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType()));
-                        testBoard.addPiece(pos, null);
-                        ChessGame testGame = new ChessGame();
-                        testGame.setBoard(testBoard);
-                        if (!testGame.isInCheck(teamColor)) {
-                            return false; // Found a legal move
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
+        return GameHelper.hasNoLegalMoves(cBoard, teamColor);
     }
 
     /**
@@ -316,7 +276,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         // set the board to be this new one
-        this.c_board = board;
+        this.cBoard = board;
     }
 
     /**
@@ -326,6 +286,6 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         //return chessboard that was saved and created
-        return c_board;
+        return cBoard;
     }
 }

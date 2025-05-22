@@ -1,10 +1,9 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
-import model.TeamColor;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import result.CreateGameResult;
