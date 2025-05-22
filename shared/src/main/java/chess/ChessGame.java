@@ -159,7 +159,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPos = findKing(teamColor);
-        if (kingPos == null) return false;
+        if (kingPos == null) {return false;}
 
         for (ChessMove move : allTeamMoves(oppositeTeam(teamColor))) {
             if (move.getEndPosition().equals(kingPos)) {
@@ -191,7 +191,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) return false;
+        if (!isInCheck(teamColor)) {return false;}
         return GameHelper.hasNoLegalMoves(cBoard, teamColor);
     }
 
@@ -226,7 +226,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) return false;
+        if (isInCheck(teamColor)) {return false;}
         return GameHelper.hasNoLegalMoves(cBoard, teamColor);
     }
 
