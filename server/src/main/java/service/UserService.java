@@ -31,14 +31,4 @@ public class UserService {
         return new RegisterResult(auth.getUsername(), auth.getAuthToken());
     }
 
-
-//    public LogoutResult logout(String authToken) {
-//        AuthData auth = authDAO.getAuth(authToken);
-//        if (auth == null) {
-//            return new LogoutResult("Error: unauthorized");
-//        }
-//
-//        authDAO.deleteAuth(authToken);
-//        return new LogoutResult(); // success
-//    }
 }
