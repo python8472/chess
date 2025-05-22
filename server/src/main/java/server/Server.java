@@ -17,6 +17,8 @@ public class Server {
 
         GameHandler gameHandler = new GameHandler();
         get("/game", gameHandler.handleListGames);
+        post("/game", gameHandler.handleCreateGame);
+
 
         // Initialize Spark
         init();

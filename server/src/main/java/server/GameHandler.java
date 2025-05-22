@@ -10,6 +10,8 @@ import service.GameService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import request.CreateGameRequest;
+import result.CreateGameResult;
 
 public class GameHandler {
     private final Gson gson = new Gson();
@@ -26,6 +28,20 @@ public class GameHandler {
             res.status(401);
         } else {
             res.status(200);
+        }
+
+        return gson.toJson(result);
+    };
+
+    public Route handleCreateGame = (Request req, Response res) -> {
+        String authToken = req.headers("Authorization");
+        CreateGameRequest createReq = gson.fromJson(req.body(), CreateGameRequest.class);
+        CreateGameResult result = gameService.createGame(authToken, createReq);
+
+        if (result.getMessage() != null) {
+            res.status(401); // Unauthorized or invalid
+        } else {
+            res.status(200); // Game created
         }
 
         return gson.toJson(result);

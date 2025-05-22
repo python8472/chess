@@ -5,7 +5,8 @@ import dataAccess.GameDAO;
 import model.AuthData;
 import model.GameData;
 import result.ListGamesResult;
-
+import request.CreateGameRequest;
+import result.CreateGameResult;
 import java.util.List;
 
 public class GameService {
@@ -25,5 +26,19 @@ public class GameService {
 
         List<GameData> games = gameDAO.listGames();
         return new ListGamesResult(games);
+    }
+
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            return new CreateGameResult("Error: unauthorized");
+        }
+
+        if (request.getGameName() == null || request.getGameName().isBlank()) {
+            return new CreateGameResult("Error: game name required");
+        }
+
+        int gameID = gameDAO.createGame(request.getGameName());
+        return new CreateGameResult(gameID);
     }
 }

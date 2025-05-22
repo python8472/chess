@@ -22,5 +22,12 @@ public class MemoryGameDAO implements GameDAO {
         nextGameID = 1;
     }
 
-    // You'll add createGame() later
+    @Override
+    public int createGame(String gameName) {
+        int gameID = nextGameID++;
+        GameData game = new GameData(gameID, gameName, null, null);
+        games.put(gameID, game);
+        return gameID;
+    }
+
 }
