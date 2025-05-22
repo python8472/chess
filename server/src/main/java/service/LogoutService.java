@@ -11,11 +11,12 @@ public class LogoutService {
     }
 
     public LogoutResult logout(String authToken) {
-        if (authToken == null || authToken.isEmpty()) {
-            return new LogoutResult("Error: missing auth token");
+        if (authToken == null || authDAO.getAuth(authToken) == null) {
+            return new LogoutResult("Error: unauthorized");
         }
 
         authDAO.deleteAuth(authToken);
-        return new LogoutResult(); // Success
+        return new LogoutResult();  // success, null message
     }
 }
+
