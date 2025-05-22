@@ -6,7 +6,7 @@ public class GameHelper {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(pos);
-                if (!isEligiblePiece(piece, teamColor)) continue;
+                if (!isEligiblePiece(piece, teamColor)) {continue;}
 
                 if (canPieceEscapeCheck(piece, pos, board, teamColor)) {
                     return false;
