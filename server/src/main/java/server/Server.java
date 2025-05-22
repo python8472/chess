@@ -9,9 +9,12 @@ public class Server {
         port(desiredPort);
         staticFiles.location("web");
 
-        // Register endpoints
+        // get endpoints
         UserHandler userHandler = new UserHandler();
         post("/user", userHandler.handleRegister);
+        post("/session", userHandler.handleLogin);
+        delete("/session", userHandler.handleLogout);
+
 
         // Initialize Spark
         init();

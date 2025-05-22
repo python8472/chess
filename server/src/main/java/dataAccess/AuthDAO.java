@@ -3,10 +3,8 @@ package dataAccess;
 import model.AuthData;
 
 public interface AuthDAO {
-    /**
-     * Creates a new auth token for a given username.
-     * @param username the user to associate with the token
-     * @return the generated AuthData object
-     */
-    AuthData createAuth(String username);
+    AuthData createAuth(String username);             // POST /user, /session
+    AuthData getAuth(String authToken);               // used to validate auth
+    void deleteAuth(String authToken);                // DELETE /session
+    void clear();                                     // DELETE /db
 }

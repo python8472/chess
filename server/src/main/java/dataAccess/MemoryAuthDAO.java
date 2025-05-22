@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * In-memory implementation of AuthDAO.
- * Stores auth tokens and their associated usernames.
- */
 public class MemoryAuthDAO implements AuthDAO {
     private final Map<String, AuthData> tokens = new HashMap<>();
 
@@ -21,15 +17,17 @@ public class MemoryAuthDAO implements AuthDAO {
         return auth;
     }
 
-    // Optional: Add later if needed (e.g., for validation or logout)
-    public AuthData getAuth(String token) {
-        return tokens.get(token);
+    @Override
+    public AuthData getAuth(String authToken) {
+        return tokens.get(authToken);
     }
 
-    public void deleteAuth(String token) {
-        tokens.remove(token);
+    @Override
+    public void deleteAuth(String authToken) {
+        tokens.remove(authToken);
     }
 
+    @Override
     public void clear() {
         tokens.clear();
     }
