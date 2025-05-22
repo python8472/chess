@@ -7,16 +7,12 @@ import java.util.Objects;
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
- *
- *
  * My little To-do list:
  * 1. Add fields to ChessPosition and ChessPiece
  *    - pieceStartPos
  *    - pieceEndPos
  *    - promotionPiece
- *
  *    get them from ChessMove function
- *
  *    finish other two functions
  */
 public class ChessMove {
@@ -54,7 +50,9 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(pieceStartPos, chessMove.pieceStartPos) && Objects.equals(pieceEndPos, chessMove.pieceEndPos) && promotionPiece == chessMove.promotionPiece;
+        return Objects.equals(pieceStartPos, chessMove.pieceStartPos) &&
+                Objects.equals(pieceEndPos, chessMove.pieceEndPos) &&
+                promotionPiece == chessMove.promotionPiece;
     }
 
     @Override

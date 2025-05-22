@@ -15,9 +15,6 @@ public class ChessGame {
 
     private TeamColor whoseTurn = TeamColor.WHITE; //to track turns
     private ChessBoard cBoard;
-    private ChessPosition dumbPawn; // pawn that is empassant eligible
-
-
 
     public ChessGame() {
         cBoard = new ChessBoard();
@@ -102,7 +99,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = cBoard.getPiece(startPosition);
-        if (piece == null) return null;
+        if (piece == null) {return null;}
 
         List<ChessMove> legalMoves = new ArrayList<>();
 
@@ -110,26 +107,7 @@ public class ChessGame {
             ChessBoard simulatedBoard = cloneBoard();
             ChessPiece.PieceType finalType = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType();
 
-            // Special En Passant generation
-            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && dumbPawn != null) {
-                int row = startPosition.getRow();
-                int col = startPosition.getColumn();
-                int dir = (piece.getTeamColor() == TeamColor.WHITE) ? 1 : -1;
-                int enemyRow = row + dir;
 
-                if (Math.abs(dumbPawn.getColumn() - col) == 1 && dumbPawn.getRow() == enemyRow) {
-                    ChessPosition enPassantCapture = new ChessPosition(row + dir, dumbPawn.getColumn());
-                    ChessBoard temp = cloneBoard();
-                    temp.addPiece(startPosition, null);
-                    temp.addPiece(new ChessPosition(row, dumbPawn.getColumn()), null);  // remove captured pawn
-                    temp.addPiece(enPassantCapture, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
-                    ChessGame testGame = new ChessGame();
-                    testGame.setBoard(temp);
-                    if (!testGame.isInCheck(piece.getTeamColor())) {
-                        legalMoves.add(new ChessMove(startPosition, enPassantCapture, null));
-                    }
-                }
-            }
 
             // Standard move simulation
             simulatedBoard.addPiece(startPosition, null);
@@ -165,27 +143,10 @@ public class ChessGame {
 
         ChessPiece.PieceType finalType = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece.getPieceType();
 
-        // Handle en passant with dumbPawn
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            int dir = (piece.getTeamColor() == TeamColor.WHITE) ? -1 : 1;
-            if (move.getEndPosition().equals(dumbPawn) && Math.abs(move.getStartPosition().getColumn() - move.getEndPosition().getColumn()) == 1 && cBoard.getPiece(move.getEndPosition()) == null) {
-                ChessPosition captured = new ChessPosition(move.getEndPosition().getRow() - dir, move.getEndPosition().getColumn());
-                cBoard.addPiece(captured, null); // remove captured pawn
-            }
-        }
-
 
         // Perform the move
         cBoard.addPiece(move.getStartPosition(), null);
         cBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), finalType));
-
-        // Update en passant state
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
-                Math.abs(move.getStartPosition().getRow() - move.getEndPosition().getRow()) == 2) {
-            dumbPawn = move.getEndPosition();
-        } else {
-            dumbPawn = null;
-        }
         // Flip turn
         whoseTurn = oppositeTeam(whoseTurn);
     }

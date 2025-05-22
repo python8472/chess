@@ -17,7 +17,7 @@ public class MoveHelper {
                 row += dir[0];
                 col += dir[1];
 
-                if (row < 1 || row > 8 || col < 1 || col > 8) break;
+                if (row < 1 || row > 8 || col < 1 || col > 8) {break;}
 
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece target = board.getPiece(pos);
@@ -29,7 +29,7 @@ public class MoveHelper {
                     }
                     break; // can't move past any piece
                 }
-                if (!isSliding) break; // only one step for non-sliding pieces
+                if (!isSliding) {break;} // only one step for non-sliding pieces
             }
         }
         return moves;

@@ -1,10 +1,10 @@
 package result;
 
 public class LogoutResult {
-    private String message;
+    private final String message;
 
     public LogoutResult() {
-        this.message = null; // test expects null
+        this.message = null; //test expects null
     }
 
     public LogoutResult(String message) {

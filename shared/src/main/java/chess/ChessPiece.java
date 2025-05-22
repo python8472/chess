@@ -1,9 +1,6 @@
 package chess;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-
 import chess.pieces.*;
 
 /**
@@ -52,8 +49,8 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }
@@ -86,7 +83,6 @@ public class ChessPiece {
             case PAWN -> Pawn.getPawnMoves(board, myPosition, pieceColor);
             case QUEEN -> Queen.getQueenMoves(board, myPosition, pieceColor);
             case ROOK -> Rook.getRookMoves(board, myPosition, pieceColor);
-            default -> new ArrayList<>();
         };
     }
 }
