@@ -1,25 +1,26 @@
 package server;
 
 import spark.*;
+import static spark.Spark.*;
 
 public class Server {
 
     public int run(int desiredPort) {
-        Spark.port(desiredPort);
+        port(desiredPort);
+        staticFiles.location("web");
 
-        Spark.staticFiles.location("web");
+        // Register endpoints
+        UserHandler userHandler = new UserHandler();
+        post("/user", userHandler.handleRegister);
 
-        // Register your endpoints and handle exceptions here.
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-
-        Spark.awaitInitialization();
-        return Spark.port();
+        // Initialize Spark
+        init();
+        awaitInitialization();
+        return port();
     }
 
     public void stop() {
-        Spark.stop();
-        Spark.awaitStop();
+        stop();
+        awaitStop();
     }
 }
