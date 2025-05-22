@@ -2,10 +2,10 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
-import shared.model.UserData;
-import shared.model.AuthData;
-import shared.request.RegisterRequest;
-import shared.result.RegisterResult;
+import model.UserData;
+import model.AuthData;
+import request.RegisterRequest;
+import result.RegisterResult;
 
 public class UserService {
     private final UserDAO userDAO;

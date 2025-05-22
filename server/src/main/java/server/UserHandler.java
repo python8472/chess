@@ -9,8 +9,8 @@ import dataAccess.UserDAO;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
 import service.UserService;
-import shared.request.RegisterRequest;
-import shared.result.RegisterResult;
+import request.RegisterRequest;
+import result.RegisterResult;
 
 public class UserHandler {
     private final Gson gson = new Gson();

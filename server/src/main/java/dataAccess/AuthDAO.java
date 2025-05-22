@@ -1,6 +1,6 @@
 package dataAccess;
 
-import shared.model.AuthData;
+import model.AuthData;
 
 public interface AuthDAO {
     /**

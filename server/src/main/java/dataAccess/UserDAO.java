@@ -1,6 +1,6 @@
 package dataAccess;
 
-import shared.model.UserData;
+import model.UserData;
 
 public interface UserDAO {
     UserData getUser(String username);

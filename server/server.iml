@@ -11,6 +11,6 @@
     <orderEntry type="library" exported="" name="lib" level="project" />
     <orderEntry type="library" exported="" name="junit.jupiter" level="project" />
     <orderEntry type="library" exported="" name="google.code.gson" level="project" />
-    <orderEntry type="module" module-name="client" />
+    <orderEntry type="module" module-name="client" exported="" />
   </component>
 </module>
