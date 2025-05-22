@@ -3,9 +3,7 @@ package result;
 public class LogoutResult {
     private String message;
 
-    public LogoutResult() {
-        this.message = null;
-    }
+    public LogoutResult() {}
 
     public LogoutResult(String message) {
         this.message = message;

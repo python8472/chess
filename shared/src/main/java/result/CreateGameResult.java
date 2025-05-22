@@ -10,7 +10,6 @@ public class CreateGameResult {
 
     public CreateGameResult(String message) {
         this.message = message;
-        this.gameID = null;
     }
 
     public Integer getGameID() {

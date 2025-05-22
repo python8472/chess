@@ -1,10 +1,10 @@
 package result;
 
 public class ClearResult {
-    private String message;
+    private final String message;
 
     public ClearResult() {
-        this.message = null;
+        this.message = "Clear succeeded.";
     }
 
     public ClearResult(String message) {

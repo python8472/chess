@@ -1,9 +1,5 @@
 package result;
 
-/**
- * Response body for user registration (POST /user).
- * Returns either success (username + authToken) or an error message.
- */
 public class RegisterResult {
     private String username;
     private String authToken;

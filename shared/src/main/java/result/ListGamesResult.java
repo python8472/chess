@@ -9,12 +9,10 @@ public class ListGamesResult {
 
     public ListGamesResult(List<GameData> games) {
         this.games = games;
-        this.message = null;
     }
 
     public ListGamesResult(String message) {
         this.message = message;
-        this.games = null;
     }
 
     public List<GameData> getGames() {

@@ -4,7 +4,6 @@ public class JoinGameResult {
     private String message;
 
     public JoinGameResult() {
-        this.message = null;
     }
 
     public JoinGameResult(String message) {

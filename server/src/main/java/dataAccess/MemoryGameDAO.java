@@ -5,29 +5,18 @@ import model.GameData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryGameDAO implements GameDAO {
-    private final Map<Integer, GameData> games = new HashMap<>();
-    private int nextGameID = 1;
-
-    @Override
-    public List<GameData> listGames() {
-        return new ArrayList<>(games.values());
-    }
-
-    @Override
-    public void clear() {
-        games.clear();
-        nextGameID = 1;
-    }
+    private final HashMap<Integer, GameData> games = new HashMap<>();
+    private final AtomicInteger gameIDCounter = new AtomicInteger(1);
 
     @Override
     public int createGame(String gameName) {
-        int gameID = nextGameID++;
-        GameData game = new GameData(gameID, gameName, null, null);
-        games.put(gameID, game);
-        return gameID;
+        int id = gameIDCounter.getAndIncrement();
+        GameData game = new GameData(id, gameName, null, null);
+        games.put(id, game);
+        return id;
     }
 
     @Override
@@ -40,5 +29,13 @@ public class MemoryGameDAO implements GameDAO {
         games.put(game.getGameID(), game);
     }
 
+    @Override
+    public List<GameData> listGames() {
+        return new ArrayList<>(games.values());
+    }
 
+    @Override
+    public void clear() {
+        games.clear();
+    }
 }

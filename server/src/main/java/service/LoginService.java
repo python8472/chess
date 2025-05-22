@@ -17,19 +17,16 @@ public class LoginService {
     }
 
     public LoginResult login(LoginRequest req) {
-        String username = req.getUsername();
-        String password = req.getPassword();
-
-        if (username == null || password == null) {
-            return new LoginResult("Error: missing fields");
+        if (req.getUsername() == null || req.getPassword() == null) {
+            return new LoginResult("Error: missing fields"); // Caller should set status 400
         }
 
-        UserData user = userDAO.getUser(username);
-        if (user == null || !user.getPassword().equals(password)) {
-            return new LoginResult("Error: unauthorized");
+        UserData user = userDAO.getUser(req.getUsername());
+        if (user == null || !user.getPassword().equals(req.getPassword())) {
+            return new LoginResult("Error: unauthorized"); // Caller should set status 401
         }
 
-        AuthData auth = authDAO.createAuth(user.getUsername());
-        return new LoginResult(auth.getUsername(), auth.getAuthToken());
+        AuthData auth = authDAO.createAuth(req.getUsername());
+        return new LoginResult(auth.getUsername(), auth.getAuthToken()); // Status 200
     }
 }

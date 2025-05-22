@@ -39,10 +39,22 @@ public class GameHandler {
     public Route handleCreateGame = (Request req, Response res) -> {
         String authToken = req.headers("Authorization");
         CreateGameRequest createReq = gson.fromJson(req.body(), CreateGameRequest.class);
+
+        // Check for missing fields (400)
+        if (createReq.getGameName() == null || createReq.getGameName().isBlank()) {
+            res.status(400);
+            return gson.toJson(new CreateGameResult("Error: missing game name"));
+        }
+
         CreateGameResult result = gameService.createGame(authToken, createReq);
 
         if (result.getMessage() != null) {
-            res.status(401); // Unauthorized or invalid
+            // check if this is due to auth failure
+            if (result.getMessage().toLowerCase().contains("unauthorized")) {
+                res.status(401);
+            } else {
+                res.status(400); // fallback for other invalid input
+            }
         } else {
             res.status(200); // Game created
         }
