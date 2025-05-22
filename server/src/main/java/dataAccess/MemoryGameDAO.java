@@ -30,4 +30,15 @@ public class MemoryGameDAO implements GameDAO {
         return gameID;
     }
 
+    @Override
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
+    }
+
+    @Override
+    public void updateGame(GameData game) {
+        games.put(game.getGameID(), game);
+    }
+
+
 }

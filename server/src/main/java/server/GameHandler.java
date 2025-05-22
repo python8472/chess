@@ -12,6 +12,9 @@ import spark.Response;
 import spark.Route;
 import request.CreateGameRequest;
 import result.CreateGameResult;
+import request.JoinGameRequest;
+import result.JoinGameResult;
+
 
 public class GameHandler {
     private final Gson gson = new Gson();
@@ -42,6 +45,20 @@ public class GameHandler {
             res.status(401); // Unauthorized or invalid
         } else {
             res.status(200); // Game created
+        }
+
+        return gson.toJson(result);
+    };
+
+    public Route handleJoinGame = (Request req, Response res) -> {
+        String authToken = req.headers("Authorization");
+        JoinGameRequest joinReq = gson.fromJson(req.body(), JoinGameRequest.class);
+        JoinGameResult result = gameService.joinGame(authToken, joinReq);
+
+        if (result.getMessage() != null) {
+            res.status(403); // Invalid game or color
+        } else {
+            res.status(200); // Joined
         }
 
         return gson.toJson(result);
