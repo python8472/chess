@@ -50,17 +50,23 @@ public class GameService {
             return new JoinGameResult("Error: unauthorized");
         }
 
-        if (request.getGameID() == null || request.getPlayerColor() == null) {
-            return new JoinGameResult("Error: missing fields");
+        if (request.getGameID() == null || gameDAO.getGame(request.getGameID()) == null) {
+            return new JoinGameResult("Error: bad request");
         }
 
         GameData game = gameDAO.getGame(request.getGameID());
-        if (game == null) {
-            return new JoinGameResult("Error: invalid game ID");
+        String username = auth.getUsername();
+
+        String color = request.getPlayerColor();
+        if (color == null) {
+            // Observer join
+            return new JoinGameResult(); // success
         }
 
-        String username = auth.getUsername();
-        String color = request.getPlayerColor().toUpperCase();
+        color = color.toUpperCase();
+        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+            return new JoinGameResult("Error: bad request");
+        }
 
         switch (color) {
             case "WHITE" -> {
@@ -75,12 +81,9 @@ public class GameService {
                 }
                 game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username);
             }
-            default -> {
-                return new JoinGameResult("Error: invalid player color");
-            }
         }
 
         gameDAO.updateGame(game);
-        return new JoinGameResult(); // success (null message)
+        return new JoinGameResult(); // success
     }
 }

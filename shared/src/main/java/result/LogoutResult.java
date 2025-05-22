@@ -3,7 +3,9 @@ package result;
 public class LogoutResult {
     private String message;
 
-    public LogoutResult() {}
+    public LogoutResult() {
+        this.message = null; // test expects null
+    }
 
     public LogoutResult(String message) {
         this.message = message;
@@ -13,3 +15,4 @@ public class LogoutResult {
         return message;
     }
 }
+

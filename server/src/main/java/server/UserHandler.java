@@ -4,36 +4,41 @@ import com.google.gson.Gson;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import dataAccess.AuthDAO;
-import dataAccess.UserDAO;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
-import service.UserService;
-import service.LoginService;
 import request.RegisterRequest;
 import request.LoginRequest;
 import result.RegisterResult;
 import result.LoginResult;
-import service.LogoutService;
 import result.LogoutResult;
-
+import service.UserService;
+import service.LoginService;
+import service.LogoutService;
 
 public class UserHandler {
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final UserService userService = new UserService(userDAO, authDAO);
-    private final LoginService loginService = new LoginService(userDAO, authDAO);
+    private UserService userService;
+    private LoginService loginService;
+    private LogoutService logoutService;
+
+    public UserHandler(UserService userService, LoginService loginService, LogoutService logoutService) {
+        this.userService = userService;
+        this.loginService = loginService;
+        this.logoutService = logoutService;
+    }
 
     public Route handleRegister = (Request req, Response res) -> {
         try {
             RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
-            RegisterResult result = userService.register(registerRequest);
 
+            if (registerRequest.getUsername() == null || registerRequest.getPassword() == null || registerRequest.getEmail() == null) {
+                res.status(400);
+                return gson.toJson(new RegisterResult("Error: missing required fields"));
+            }
+
+            RegisterResult result = userService.register(registerRequest);
             if (result.getMessage() != null) {
-                res.status(403); // Registration failed
+                res.status(403);
             } else {
-                res.status(200); // Success
+                res.status(200);
             }
 
             return gson.toJson(result);
@@ -46,12 +51,17 @@ public class UserHandler {
     public Route handleLogin = (Request req, Response res) -> {
         try {
             LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
-            LoginResult result = loginService.login(loginRequest);
 
+            if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+                res.status(400);
+                return gson.toJson(new LoginResult("Error: missing required fields"));
+            }
+
+            LoginResult result = loginService.login(loginRequest);
             if (result.getMessage() != null) {
-                res.status(401); // Unauthorized
+                res.status(401);
             } else {
-                res.status(200); // Success
+                res.status(200);
             }
 
             return gson.toJson(result);
@@ -64,13 +74,12 @@ public class UserHandler {
     public Route handleLogout = (Request req, Response res) -> {
         try {
             String authToken = req.headers("Authorization");
-            LogoutService logoutService = new LogoutService(authDAO);
             LogoutResult result = logoutService.logout(authToken);
 
             if (result.getMessage() != null) {
-                res.status(401); // Unauthorized or missing
+                res.status(401);
             } else {
-                res.status(200); // Success
+                res.status(200);
             }
 
             return gson.toJson(result);

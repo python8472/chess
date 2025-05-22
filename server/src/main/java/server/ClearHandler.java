@@ -1,28 +1,25 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.*;
+import result.ClearResult;
+import service.ClearService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import result.ClearResult;
 
 public class ClearHandler {
-
     private final Gson gson = new Gson();
+    private ClearService clearService;
 
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
+    public ClearHandler(ClearService clearService) {
+        this.clearService = clearService;
+    }
 
     public Route handle = (Request req, Response res) -> {
         try {
-            userDAO.clear();
-            authDAO.clear();
-            gameDAO.clear();
-
+            ClearResult result = clearService.clearAll();
             res.status(200);
-            return gson.toJson(new ClearResult());
+            return gson.toJson(result);
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(new ClearResult("Error: " + e.getMessage()));

@@ -16,7 +16,7 @@ public class LogoutService {
         }
 
         authDAO.deleteAuth(authToken);
-        return new LogoutResult();  // success, null message
+        return new LogoutResult(); // Success: message is null
     }
 }
 
