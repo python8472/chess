@@ -1,10 +1,11 @@
-package service;
+package passoff.service;
 
 import dataAccess.*;
 import org.junit.jupiter.api.*;
 import request.*;
 import result.*;
 import model.AuthData;
+import service.GameService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

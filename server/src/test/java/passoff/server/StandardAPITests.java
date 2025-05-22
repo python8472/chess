@@ -1,4 +1,4 @@
-package server;
+package passoff.server;
 
 import chess.ChessGame;
 import org.junit.jupiter.api.*;
@@ -14,7 +14,7 @@ public class StandardAPITests {
     private static TestUser existingUser;
     private static TestUser newUser;
     private static TestCreateRequest createRequest;
-    private static TestServerFacade serverFacade;
+    private static TestServerFacade_test serverFacade;
     private static Server server;
     private String existingAuth;
 
@@ -31,7 +31,7 @@ public class StandardAPITests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
-        serverFacade = new TestServerFacade("localhost", Integer.toString(port));
+        serverFacade = new TestServerFacade_test("localhost", Integer.toString(port));
         existingUser = new TestUser("ExistingUser", "existingUserPassword", "eu@mail.com");
         newUser = new TestUser("NewUser", "newUserPassword", "nu@mail.com");
         createRequest = new TestCreateRequest("testGame");

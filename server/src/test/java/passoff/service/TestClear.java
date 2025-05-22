@@ -1,4 +1,4 @@
-package service;
+package passoff.service;
 
 import dataAccess.*;
 import model.*;
@@ -21,8 +21,8 @@ public class TestClear {
         gameDAO = new MemoryGameDAO();
 
         // Simulate stored data
-        userDAO.createUser(new UserData("wes", "pass", "email"));
-        authDAO.createAuth("wes");
+        userDAO.createUser(new UserData("nick_j", "pw", "woof.com"));
+        authDAO.createAuth("nick_j");
         gameDAO.createGame("Cool Game");
     }
 
@@ -30,7 +30,7 @@ public class TestClear {
     @DisplayName("Clear Wipes All Tables")
     void testClearAllMemoryDAOs() {
         // Sanity check before clearing
-        assertNotNull(userDAO.getUser("wes"));
+        assertNotNull(userDAO.getUser("nick_j"));
         assertNotNull(authDAO.getAuth(authDAO.getAllAuthTokens().iterator().next()));
         assertFalse(gameDAO.listGames().isEmpty());
 
@@ -40,7 +40,7 @@ public class TestClear {
         gameDAO.clear();
 
         // Post-clear assertions
-        assertNull(userDAO.getUser("wes"));
+        assertNull(userDAO.getUser("nick_j"));
         assertTrue(authDAO.getAllAuthTokens().isEmpty(), "Auth tokens not cleared");
         assertTrue(gameDAO.listGames().isEmpty(), "Games not cleared");
     }

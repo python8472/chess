@@ -1,9 +1,10 @@
-package service;
+package passoff.service;
 
 import dataAccess.*;
 import org.junit.jupiter.api.*;
 import request.RegisterRequest;
 import result.RegisterResult;
+import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +19,7 @@ public class TestUserService {
 
     @Test
     public void testRegisterPositive() {
-        RegisterRequest request = new RegisterRequest("wes", "pass", "w@e.com");
+        RegisterRequest request = new RegisterRequest("nick_j", "pw", "woof.com");
         RegisterResult result = service.register(request);
         assertNull(result.getMessage());
         assertNotNull(result.getAuthToken());
@@ -26,7 +27,7 @@ public class TestUserService {
 
     @Test
     public void testRegisterNegative() {
-        RegisterRequest request = new RegisterRequest(null, "pass", "w@e.com");
+        RegisterRequest request = new RegisterRequest(null, "nah", "woof.com");
         RegisterResult result = service.register(request);
         assertNotNull(result.getMessage());
     }

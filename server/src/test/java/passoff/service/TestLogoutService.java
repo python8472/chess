@@ -1,9 +1,10 @@
-package service;
+package passoff.service;
 
 import dataAccess.*;
 import org.junit.jupiter.api.*;
 import result.LogoutResult;
 import model.AuthData;
+import service.LogoutService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +21,7 @@ public class TestLogoutService {
 
     @Test
     public void testLogoutPositive() {
-        AuthData auth = authDAO.createAuth("wes");
+        AuthData auth = authDAO.createAuth("nick_j");
         LogoutResult result = service.logout(auth.getAuthToken());
         assertNull(result.getMessage());
     }

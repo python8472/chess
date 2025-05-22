@@ -1,4 +1,4 @@
-package server;
+package passoff.server;
 
 import com.google.gson.Gson;
 import passoff.model.*;
@@ -9,12 +9,12 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-public class TestServerFacade {
+public class TestServerFacade_test {
     private final String baseUrl;
     private final Gson gson = new Gson();
     private int statusCode;
 
-    public TestServerFacade(String host, String port) {
+    public TestServerFacade_test(String host, String port) {
         this.baseUrl = "http://" + host + ":" + port;
     }
 

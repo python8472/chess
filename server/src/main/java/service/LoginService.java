@@ -17,16 +17,19 @@ public class LoginService {
     }
 
     public LoginResult login(LoginRequest req) {
-        if (req.username == null || req.password == null) {
+        String username = req.getUsername();
+        String password = req.getPassword();
+
+        if (username == null || password == null) {
             return new LoginResult("Error: missing fields");
         }
 
-        UserData user = userDAO.getUser(req.username);
-        if (user == null || !user.getPassword().equals(req.password)) {
+        UserData user = userDAO.getUser(username);
+        if (user == null || !user.getPassword().equals(password)) {
             return new LoginResult("Error: unauthorized");
         }
 
-        AuthData auth = authDAO.createAuth(req.username);
+        AuthData auth = authDAO.createAuth(user.getUsername());
         return new LoginResult(auth.getUsername(), auth.getAuthToken());
     }
 }

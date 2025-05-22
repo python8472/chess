@@ -5,15 +5,13 @@ public class LoginResult {
     private String authToken;
     private String message;
 
-    public LoginResult() {}
-
-    public LoginResult(String message) {
-        this.message = message;
-    }
-
     public LoginResult(String username, String authToken) {
         this.username = username;
         this.authToken = authToken;
+    }
+
+    public LoginResult(String message) {
+        this.message = message;
     }
 
     public String getUsername() {

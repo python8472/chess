@@ -7,15 +7,13 @@ package result;
 public class RegisterResult {
     private String username;
     private String authToken;
-    private String message;  // null on success, populated on error
+    private String message;
 
-    // Success constructor
     public RegisterResult(String username, String authToken) {
         this.username = username;
         this.authToken = authToken;
     }
 
-    // Error constructor
     public RegisterResult(String message) {
         this.message = message;
     }

@@ -5,7 +5,10 @@ import dataAccess.UserDAO;
 import model.UserData;
 import model.AuthData;
 import request.RegisterRequest;
+import request.LoginRequest;
 import result.RegisterResult;
+import result.LoginResult;
+import result.LogoutResult;
 
 public class UserService {
     private final UserDAO userDAO;
@@ -28,7 +31,30 @@ public class UserService {
         UserData user = new UserData(req.username, req.password, req.email);
         userDAO.createUser(user);
         AuthData auth = authDAO.createAuth(user.getUsername());
-
         return new RegisterResult(auth.getUsername(), auth.getAuthToken());
+    }
+
+    public LoginResult login(LoginRequest req) {
+        if (req.getUsername() == null || req.getPassword() == null) {
+            return new LoginResult("Error: missing fields");
+        }
+
+        UserData user = userDAO.getUser(req.getUsername());
+        if (user == null || !user.getPassword().equals(req.getPassword())) {
+            return new LoginResult("Error: unauthorized");
+        }
+
+        AuthData auth = authDAO.createAuth(user.getUsername());
+        return new LoginResult(auth.getUsername(), auth.getAuthToken());
+    }
+
+    public LogoutResult logout(String authToken) {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            return new LogoutResult("Error: unauthorized");
+        }
+
+        authDAO.deleteAuth(authToken);
+        return new LogoutResult(); // success
     }
 }
