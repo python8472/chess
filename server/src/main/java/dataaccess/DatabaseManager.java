@@ -41,7 +41,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    static public Connection getConnection() throws DataAccessException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
@@ -108,10 +108,10 @@ public class DatabaseManager {
                         );
                     """);
 
-            System.out.println("✅ Tables ensured inside database: " + databaseName);
+            System.out.println("Tables created inside database: " + databaseName);
 
         } catch (SQLException ex) {
-            throw new DataAccessException("Failed to configure database schema", ex);
+            throw new DataAccessException("Failed", ex);
         }
     }
 }
