@@ -6,6 +6,7 @@ import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class LoginService {
     private final UserDAO userDAO;
@@ -18,15 +19,15 @@ public class LoginService {
 
     public LoginResult login(LoginRequest req) {
         if (req.getUsername() == null || req.getPassword() == null) {
-            return new LoginResult("Error: missing fields"); // Caller should set status 400
+            return new LoginResult("Error: missing fields"); // 400
         }
 
         UserData user = userDAO.getUser(req.getUsername());
-        if (user == null || !user.getPassword().equals(req.getPassword())) {
-            return new LoginResult("Error: unauthorized"); // Caller should set status 401
+        if (user == null || !BCrypt.checkpw(req.getPassword(), user.getPassword())) {
+            return new LoginResult("Error: unauthorized"); // 401
         }
 
         AuthData auth = authDAO.createAuth(req.getUsername());
-        return new LoginResult(auth.getUsername(), auth.getAuthToken()); // Status 200
+        return new LoginResult(auth.getUsername(), auth.getAuthToken()); // 200
     }
 }

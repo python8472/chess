@@ -9,20 +9,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import dataaccess.DatabaseManager;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class SQLUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData user) {
         String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, hashedPassword);
             stmt.setString(3, user.getEmail());
             stmt.executeUpdate();
         } catch (DataAccessException | SQLException e) {
-            System.err.println("SQLUserDAO.createUser: " + e.getMessage());
+            System.err.println("createUser: " + e.getMessage());
         }
     }
 

@@ -62,7 +62,7 @@ public class GameService {
 
         color = color.trim().toUpperCase();
         if (!color.equals("WHITE") && !color.equals("BLACK")) {
-            return new JoinGameResult("Error: bad request");  // <-- this is key
+            return new JoinGameResult("Error: bad request");
         }
 
         GameData game = gameDAO.getGame(gameID);
@@ -73,13 +73,13 @@ public class GameService {
                 if (game.getWhiteUsername() != null) {
                     return new JoinGameResult("Error: white player already joined");
                 }
-                game = new GameData(game.getGameID(), game.getGameName(), username, game.getBlackUsername());
+                game = new GameData(game.getGameID(), game.getGameName(), username, game.getBlackUsername(), game.game());
             }
             case "BLACK" -> {
                 if (game.getBlackUsername() != null) {
                     return new JoinGameResult("Error: black player already joined");
                 }
-                game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username);
+                game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username, game.game());
             }
         }
 

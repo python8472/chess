@@ -14,7 +14,7 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public int createGame(String gameName) {
         int id = gameIDCounter.getAndIncrement();
-        GameData game = new GameData(id, gameName, null, null);
+        GameData game = new GameData(id, gameName, null, null, null);
         games.put(id, game);
         return id;
     }

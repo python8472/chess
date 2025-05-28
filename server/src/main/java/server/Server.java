@@ -1,6 +1,9 @@
 package server;
 
 import dataaccess.*;
+import dataaccess.sql.SQLUserDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
 import service.UserService;
 import service.LoginService;
 import service.LogoutService;
@@ -17,27 +20,28 @@ public class Server {
             System.err.println("DB Fail: " + e.getMessage());
             return -1;
         }
+
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        //shared DAO instances
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        // shared DAO instances now with SQL instead
+        UserDAO userDAO = new SQLUserDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
+        GameDAO gameDAO = new SQLGameDAO();
 
-        //shared service instances
+        // shared service instances
         UserService userService = new UserService(userDAO, authDAO);
         LoginService loginService = new LoginService(userDAO, authDAO);
         LogoutService logoutService = new LogoutService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
 
-        //handlers
+        // handlers
         UserHandler userHandler = new UserHandler(userService, loginService, logoutService);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
 
-        //make routes
+        // routes
         Spark.post("/user", userHandler.handleRegister);
         Spark.post("/session", userHandler.handleLogin);
         Spark.delete("/session", userHandler.handleLogout);
