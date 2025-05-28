@@ -74,4 +74,44 @@ public class DatabaseManager {
         var port = Integer.parseInt(props.getProperty("db.port"));
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
+
+
+    static public void configureDatabase() throws DataAccessException {
+        createDatabase(); // make DB before adding tables
+        try (var conn = getConnection(); var stmt = conn.createStatement()) {
+
+            stmt.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS users (
+                            username VARCHAR(255) PRIMARY KEY,
+                            password VARCHAR(255) NOT NULL,
+                            email VARCHAR(255) NOT NULL
+                        );
+                    """);
+
+            stmt.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS auth_tokens (
+                            token VARCHAR(255) PRIMARY KEY,
+                            username VARCHAR(255) NOT NULL,
+                            FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+                        );
+                    """);
+
+            stmt.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS games (
+                            id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                            gameName VARCHAR(255) NOT NULL,
+                            whitePlayer VARCHAR(255),
+                            blackPlayer VARCHAR(255),
+                            game TEXT NOT NULL,
+                            FOREIGN KEY (whitePlayer) REFERENCES users(username) ON DELETE SET NULL,
+                            FOREIGN KEY (blackPlayer) REFERENCES users(username) ON DELETE SET NULL
+                        );
+                    """);
+
+            System.out.println("✅ Tables ensured inside database: " + databaseName);
+
+        } catch (SQLException ex) {
+            throw new DataAccessException("Failed to configure database schema", ex);
+        }
+    }
 }

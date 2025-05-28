@@ -1,11 +1,6 @@
 package server;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import service.UserService;
 import service.LoginService;
 import service.LogoutService;
@@ -16,6 +11,12 @@ import spark.Spark;
 public class Server {
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.configureDatabase();  // make DB and fail if fail
+        } catch (Exception e) {
+            System.err.println("DB Fail: " + e.getMessage());
+            return -1;
+        }
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
