@@ -12,7 +12,7 @@ public class TestLoginService {
     private LoginService service;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws DataAccessException {
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         service = new LoginService(userDAO, authDAO);
@@ -21,7 +21,7 @@ public class TestLoginService {
     }
 
     @Test
-    public void testLoginPositive() {
+    public void testLoginPositive() throws DataAccessException {
         LoginRequest request = new LoginRequest("nick_j", "pw");
         LoginResult result = service.login(request);
         assertNull(result.getMessage());
@@ -29,7 +29,7 @@ public class TestLoginService {
     }
 
     @Test
-    public void testLoginNegative() {
+    public void testLoginNegative() throws DataAccessException {
         LoginRequest request = new LoginRequest("nick_j", "NAH");
         LoginResult result = service.login(request);
         assertNotNull(result.getMessage());

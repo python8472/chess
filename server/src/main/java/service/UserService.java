@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 import model.AuthData;
@@ -16,7 +17,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest req) {
+    public RegisterResult register(RegisterRequest req) throws DataAccessException {
         if (req.username == null || req.password == null || req.email == null) {
             return new RegisterResult("Error: missing required fields");
         }

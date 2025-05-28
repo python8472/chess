@@ -11,7 +11,7 @@ public class TestClearService {
     private GameDAO gameDAO;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws DataAccessException {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
@@ -23,7 +23,7 @@ public class TestClearService {
     }
 
     @Test
-    public void testClearPositive() {
+    public void testClearPositive() throws DataAccessException {
         // Sanity check before clearing
         assertNotNull(userDAO.getUser("nick_j"));
         assertNotNull(authDAO.getAuth(authDAO.getAllAuthTokens().iterator().next()));
@@ -41,7 +41,7 @@ public class TestClearService {
     }
 
     @Test
-    public void testClearNegative() {
+    public void testClearNegative() throws DataAccessException {
         userDAO.createUser(new UserData("nope", "p", "e"));
         assertNotNull(userDAO.getUser("nope"));
         userDAO.clear();

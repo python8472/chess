@@ -17,7 +17,7 @@ public class TestUserService {
     }
 
     @Test
-    public void testRegisterPositive() {
+    public void testRegisterPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("nick_j", "pw", "woof.com");
         RegisterResult result = service.register(request);
         assertNull(result.getMessage());
@@ -25,7 +25,7 @@ public class TestUserService {
     }
 
     @Test
-    public void testRegisterNegative() {
+    public void testRegisterNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest(null, "nah", "woof.com");
         RegisterResult result = service.register(request);
         assertNotNull(result.getMessage());

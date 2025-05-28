@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -17,7 +18,7 @@ public class LoginService {
         this.authDAO = authDAO;
     }
 
-    public LoginResult login(LoginRequest req) {
+    public LoginResult login(LoginRequest req) throws DataAccessException {
         if (req.getUsername() == null || req.getPassword() == null) {
             return new LoginResult("Error: missing fields"); // 400
         }
