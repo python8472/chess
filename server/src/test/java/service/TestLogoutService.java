@@ -19,14 +19,14 @@ public class TestLogoutService {
     }
 
     @Test
-    public void testLogoutPositive() {
+    public void testLogoutPositive() throws DataAccessException {
         AuthData auth = authDAO.createAuth("nick_j");
         LogoutResult result = service.logout(auth.getAuthToken());
         assertNull(result.getMessage());
     }
 
     @Test
-    public void testLogoutNegative() {
+    public void testLogoutNegative() throws DataAccessException {
         LogoutResult result = service.logout("invalid-token");
         assertNotNull(result.getMessage());
     }

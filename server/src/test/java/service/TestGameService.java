@@ -12,7 +12,7 @@ public class TestGameService {
     private String token;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws DataAccessException {
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         token = authDAO.createAuth("wes").getAuthToken();
@@ -20,7 +20,7 @@ public class TestGameService {
     }
 
     @Test
-    public void testCreateGamePositive() {
+    public void testCreateGamePositive() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("Cool Game");
         CreateGameResult result = service.createGame(token, request);
         assertNull(result.getMessage());
@@ -28,27 +28,27 @@ public class TestGameService {
     }
 
     @Test
-    public void testCreateGameNegative() {
+    public void testCreateGameNegative() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("");
         CreateGameResult result = service.createGame(token, request);
         assertNotNull(result.getMessage());
     }
 
     @Test
-    public void testListGamesPositive() {
+    public void testListGamesPositive() throws DataAccessException {
         ListGamesResult result = service.listGames(token);
         assertNull(result.getMessage());
         assertNotNull(result.getGames());
     }
 
     @Test
-    public void testListGamesNegative() {
+    public void testListGamesNegative() throws DataAccessException {
         ListGamesResult result = service.listGames("bad-token");
         assertNotNull(result.getMessage());
     }
 
     @Test
-    public void testJoinGamePositive() {
+    public void testJoinGamePositive() throws DataAccessException {
         int validGameID = service.createGame(token, new CreateGameRequest("Joinable Game")).getGameID();
         JoinGameRequest request = new JoinGameRequest("WHITE", validGameID);
         JoinGameResult result = service.joinGame(token, request);
@@ -56,7 +56,7 @@ public class TestGameService {
     }
 
     @Test
-    public void testJoinGameNegative() {
+    public void testJoinGameNegative() throws DataAccessException {
         JoinGameRequest request = new JoinGameRequest("WHITE", 999);
         JoinGameResult result = service.joinGame(token, request);
         assertNotNull(result.getMessage());

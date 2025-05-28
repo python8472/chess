@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
@@ -21,30 +22,27 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult listGames(String authToken) {
+    public ListGamesResult listGames(String authToken) throws DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
             return new ListGamesResult("Error: unauthorized");
         }
-
         List<GameData> games = gameDAO.listGames();
         return new ListGamesResult(games);
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException {
         if (authToken == null || authDAO.getAuth(authToken) == null) {
             return new CreateGameResult("Error: unauthorized");
         }
-
         if (request.getGameName() == null || request.getGameName().isBlank()) {
             return new CreateGameResult("Error: game name required");
         }
-
         int gameID = gameDAO.createGame(request.getGameName());
         return new CreateGameResult(gameID);
     }
 
-    public JoinGameResult joinGame(String authToken, JoinGameRequest request) {
+    public JoinGameResult joinGame(String authToken, JoinGameRequest request) throws DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
             return new JoinGameResult("Error: unauthorized");
@@ -56,19 +54,14 @@ public class GameService {
         }
 
         String color = request.getPlayerColor();
-        if (color == null) {
-            return new JoinGameResult("Error: bad request");
-        }
-
-        color = color.trim().toUpperCase();
-        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+        if (color == null || (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK"))) {
             return new JoinGameResult("Error: bad request");
         }
 
         GameData game = gameDAO.getGame(gameID);
         String username = auth.getUsername();
 
-        switch (color) {
+        switch (color.toUpperCase()) {
             case "WHITE" -> {
                 if (game.getWhiteUsername() != null) {
                     return new JoinGameResult("Error: white player already joined");
@@ -84,7 +77,6 @@ public class GameService {
         }
 
         gameDAO.updateGame(game);
-        return new JoinGameResult();  // success
+        return new JoinGameResult();
     }
-
 }
