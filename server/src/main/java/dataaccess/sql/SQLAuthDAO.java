@@ -64,7 +64,7 @@ public class SQLAuthDAO implements AuthDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT token FROM auth_tokens");
              ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) tokens.add(rs.getString("token"));
+            while (rs.next()) {tokens.add(rs.getString("token"));}
         } catch (SQLException e) {
             throw new DataAccessException("getAllAuthTokens failed", e);
         }

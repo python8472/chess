@@ -24,8 +24,8 @@ public class AuthData {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AuthData that)) return false;
+        if (this == o) {return true;}
+        if (!(o instanceof AuthData that)) {return false;}
         return Objects.equals(authToken, that.authToken) &&
                 Objects.equals(username, that.username);
     }

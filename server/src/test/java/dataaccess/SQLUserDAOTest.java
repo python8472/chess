@@ -33,7 +33,7 @@ public class SQLUserDAOTest {
 
     @Test
     @Order(2)
-    void createUserNegative_Duplicate() throws DataAccessException {
+    void createUserNegative() throws DataAccessException {
         var user = new UserData("duplicate", "pass", "email");
         userDAO.createUser(user);
         assertThrows(DataAccessException.class, () -> userDAO.createUser(user));
@@ -51,7 +51,7 @@ public class SQLUserDAOTest {
 
     @Test
     @Order(4)
-    void getUserNegative_NotFound() throws DataAccessException {
+    void getUserNegative() throws DataAccessException {
         UserData result = userDAO.getUser("nonexistent");
         assertNull(result);
     }
@@ -66,7 +66,7 @@ public class SQLUserDAOTest {
 
     @Test
     @Order(6)
-    void clearNegative_Empty() {
+    void clearNegative() {
         assertDoesNotThrow(userDAO::clear);
     }
 }

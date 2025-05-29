@@ -16,7 +16,7 @@ public class SQLGameDAOTest {
 
     @BeforeEach
     public void setUp() throws DataAccessException {
-        SQLGameDAO gameDAO = new SQLGameDAO();
+        gameDAO = new SQLGameDAO();
         SQLUserDAO userDAO = new SQLUserDAO();
 
         // Clear tables before each test
@@ -26,12 +26,6 @@ public class SQLGameDAOTest {
         // Create users to satisfy foreign key constraints
         userDAO.createUser(new UserData("nick", "pw", "nick@email.com"));
         userDAO.createUser(new UserData("ally", "pw", "ally@email.com"));
-    }
-
-    @BeforeEach
-    public void setup() throws DataAccessException {
-        gameDAO = new SQLGameDAO();
-        gameDAO.clear();
     }
 
     // --- createGame ---
@@ -44,7 +38,7 @@ public class SQLGameDAOTest {
 
     @Test
     @Order(2)
-    public void createGameNegative_EmptyName() {
+    public void createGameEmptyNameThrows() {
         assertThrows(DataAccessException.class, () -> gameDAO.createGame(""));
     }
 
@@ -59,7 +53,7 @@ public class SQLGameDAOTest {
 
     @Test
     @Order(4)
-    public void getGameNegative_NotFound() throws DataAccessException {
+    public void getGameNotFoundReturnsNull() throws DataAccessException {
         GameData game = gameDAO.getGame(-1);
         assertNull(game);
     }
@@ -70,7 +64,10 @@ public class SQLGameDAOTest {
     public void updateGamePositive() throws DataAccessException {
         gameDAO.createGame("update me");
         GameData game = gameDAO.listGames().getFirst();
-        GameData updated = new GameData(game.getGameID(), game.getGameName(), "nick", null, gameDAO.getGame(game.getGameID()).game());
+        GameData updated = new GameData(
+                game.getGameID(), game.getGameName(), "nick", null,
+                gameDAO.getGame(game.getGameID()).game()
+        );
         gameDAO.updateGame(updated);
         GameData found = gameDAO.getGame(game.getGameID());
         assertEquals("nick", found.getWhiteUsername());
@@ -78,10 +75,13 @@ public class SQLGameDAOTest {
 
     @Test
     @Order(6)
-    public void updateGameNegative_InvalidUser() throws DataAccessException {
+    public void updateGameWithInvalidUserThrows() throws DataAccessException {
         gameDAO.createGame("update fail");
         GameData game = gameDAO.listGames().getFirst();
-        GameData badUpdate = new GameData(game.getGameID(), game.getGameName(), "no_such_user", null,gameDAO.getGame(game.getGameID()).game());
+        GameData badUpdate = new GameData(
+                game.getGameID(), game.getGameName(), "no_such_user", null,
+                gameDAO.getGame(game.getGameID()).game()
+        );
         assertThrows(DataAccessException.class, () -> gameDAO.updateGame(badUpdate));
     }
 
@@ -97,7 +97,7 @@ public class SQLGameDAOTest {
 
     @Test
     @Order(8)
-    public void listGamesNegative_NoneExist() throws DataAccessException {
+    public void listGamesWhenNoneExistReturnsEmpty() throws DataAccessException {
         List<GameData> games = gameDAO.listGames();
         assertEquals(0, games.size());
     }
@@ -113,7 +113,7 @@ public class SQLGameDAOTest {
 
     @Test
     @Order(10)
-    public void clearNegative_CalledTwice() throws DataAccessException {
+    public void clearCalledTwiceNoError() throws DataAccessException {
         gameDAO.createGame("clear twice");
         gameDAO.clear();
         assertDoesNotThrow(() -> gameDAO.clear());
