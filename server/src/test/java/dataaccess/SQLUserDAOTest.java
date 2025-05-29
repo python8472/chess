@@ -36,7 +36,7 @@ public class SQLUserDAOTest {
     void createUserNegative_Duplicate() throws DataAccessException {
         var user = new UserData("duplicate", "pass", "email");
         userDAO.createUser(user);
-        assertThrows(DataAccessException.class, () -> userDAO.createUser(user));  // ✅ correct
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(user));
     }
 
     @Test
