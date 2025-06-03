@@ -1,10 +1,9 @@
 package result;
 
 public class LogoutResult {
-    private final String message;
+    private String message; // null if successful
 
     public LogoutResult() {
-        this.message = null; //test expects null
     }
 
     public LogoutResult(String message) {
@@ -14,5 +13,8 @@ public class LogoutResult {
     public String getMessage() {
         return message;
     }
-}
 
+    public boolean isSuccess() {
+        return message == null;
+    }
+}
