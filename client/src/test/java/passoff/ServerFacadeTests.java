@@ -1,4 +1,4 @@
-package client;
+package passoff;
 
 import org.junit.jupiter.api.*;
 import server.Server;
