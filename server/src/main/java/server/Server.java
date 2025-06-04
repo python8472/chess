@@ -13,6 +13,7 @@ import spark.Spark;
 
 public class Server {
 
+    private ClearService clearService; // used for testing purpoes only
     public static void main(String[] args) {
         new Server().run(8080);
     }
@@ -28,17 +29,17 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        // shared DAO instances now with SQL instead
+        // shared DAO instances
         UserDAO userDAO = new SQLUserDAO();
         AuthDAO authDAO = new SQLAuthDAO();
         GameDAO gameDAO = new SQLGameDAO();
 
-        // shared service instances
+        // service instances
         UserService userService = new UserService(userDAO, authDAO);
         LoginService loginService = new LoginService(userDAO, authDAO);
         LogoutService logoutService = new LogoutService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+        clearService = new ClearService(userDAO, authDAO, gameDAO); // save to field
 
         // handlers
         UserHandler userHandler = new UserHandler(userService, loginService, logoutService);
@@ -64,5 +65,15 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    public void clear() {
+        if (clearService != null) {
+            try {
+                clearService.clearAll();
+            } catch (DataAccessException e) {
+                System.err.println("Failed to clear db: " + e.getMessage());
+            }
+        }
     }
 }
