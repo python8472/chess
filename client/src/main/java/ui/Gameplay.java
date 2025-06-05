@@ -23,7 +23,7 @@ public class Gameplay {
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "(gameplay) > " + EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
-            if (input.isEmpty()) continue;
+            if (input.isEmpty()) {continue;}
 
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
@@ -35,7 +35,8 @@ public class Gameplay {
                     System.out.println("Dipping from game...");
                     return;
                 }
-                default -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Unknown command: " + command + EscapeSequences.RESET_TEXT_COLOR);
+                default -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                        "Unknown command: " + command + EscapeSequences.RESET_TEXT_COLOR);
             }
         }
     }

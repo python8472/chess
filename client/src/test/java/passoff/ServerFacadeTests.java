@@ -3,7 +3,6 @@ package passoff;
 import facade.ServerFacade;
 import org.junit.jupiter.api.*;
 import request.*;
-import result.*;
 import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +38,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void registerNegative_Duplicate() throws Exception {
+    public void registerNegativeDuplicate() throws Exception {
         facade.register(new RegisterRequest("user1", "pass", "u1@x.com"));
         var result = facade.register(new RegisterRequest("user1", "pass", "u1@x.com"));
         assertNotNull(result.getMessage());
@@ -54,7 +53,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void loginNegative_WrongPassword() throws Exception {
+    public void loginNegativeWrongPassword() throws Exception {
         facade.register(new RegisterRequest("user3", "pass", "u3@x.com"));
         var result = facade.login(new LoginRequest("user3", "wrongpass"));
         assertNotNull(result.getMessage());
@@ -68,7 +67,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void logoutNegative_BadToken() throws Exception {
+    public void logoutNegativeBadToken() throws Exception {
         var result = facade.logout(new LogoutRequest("badToken"), "badToken");
         assertNotNull(result.getMessage());
     }
@@ -82,7 +81,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listGamesNegative_BadAuth() throws Exception {
+    public void listGamesNegativeBadAuth() throws Exception {
         var result = facade.listGames("invalidToken");
         assertNotNull(result.getMessage());
     }
@@ -96,7 +95,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void createGameNegative_BadAuth() throws Exception {
+    public void createGameNegativeBadAuth() throws Exception {
         var result = facade.createGame(new CreateGameRequest("badGame"), "invalidToken");
         assertNotNull(result.getMessage());
     }
@@ -110,7 +109,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void joinGameNegative_BadColor() throws Exception {
+    public void joinGameNegativeBadColor() throws Exception {
         var reg = facade.register(new RegisterRequest("user8", "pass", "u8@x.com"));
         var created = facade.createGame(new CreateGameRequest("game8"), reg.getAuthToken());
         var result = facade.joinGame(new JoinGameRequest("MURPLE", created.getGameID()), reg.getAuthToken());
