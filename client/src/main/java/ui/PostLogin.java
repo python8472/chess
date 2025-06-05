@@ -33,7 +33,7 @@ public class PostLogin {
                     "(" + username + ") > " +
                     EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
-            if (input.isEmpty()) continue;
+            if (input.isEmpty()) {continue;}
 
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
@@ -135,11 +135,11 @@ public class PostLogin {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
-                    "Error: game number must be an integer. Use 'list' to see available games." +
+                    "Error: game number must be an integer, use 'list' to see available games." +
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
-
+        //catch when someone puts number that does not exist
         if (index < 0 || index >= cachedGames.size()) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
                     "Error: invalid game number. Use 'list' to see available games." +
