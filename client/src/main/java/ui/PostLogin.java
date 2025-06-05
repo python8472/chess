@@ -65,6 +65,13 @@ public class PostLogin {
         }
 
         int gameID = Integer.parseInt(tokens[1]);
+        int gameIndex;
+        try {
+            gameIndex = Integer.parseInt(tokens[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: game number must be a valid integer (e.g., 'join 1 WHITE').");
+            return;
+        }
 
         // Optional: validate that the game ID exists first
         ListGamesResult gamesResult = facade.listGames(authToken);

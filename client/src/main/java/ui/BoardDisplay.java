@@ -4,26 +4,32 @@ import chess.*;
 
 public class BoardDisplay {
     public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov) {
-        int[] rows = (pov == ChessGame.TeamColor.WHITE) ?
-                new int[]{8, 7, 6, 5, 4, 3, 2, 1} :
-                new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+        int[] rows = (pov == ChessGame.TeamColor.WHITE)
+                ? new int[]{8, 7, 6, 5, 4, 3, 2, 1}
+                : new int[]{1, 2, 3, 4, 5, 6, 7, 8};
 
-        char[] cols = (pov == ChessGame.TeamColor.WHITE) ?
-                new char[]{'a','b','c','d','e','f','g','h'} :
-                new char[]{'h','g','f','e','d','c','b','a'};
+        char[] cols = (pov == ChessGame.TeamColor.WHITE)
+                ? new char[]{'a','b','c','d','e','f','g','h'}
+                : new char[]{'h','g','f','e','d','c','b','a'};
 
-        System.out.println(EscapeSequences.SET_TEXT_BOLD + "\n  " + getColumnHeader(cols) + EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        System.out.println(EscapeSequences.SET_TEXT_BOLD + "\n   " + getColumnHeader(cols) + EscapeSequences.RESET_TEXT_BOLD_FAINT);
         for (int row : rows) {
             System.out.print(EscapeSequences.SET_TEXT_BOLD + row + " " + EscapeSequences.RESET_TEXT_BOLD_FAINT);
             for (int colIndex = 0; colIndex < cols.length; colIndex++) {
-                char col = cols[colIndex];
-                ChessPosition pos = new ChessPosition(row, col - 'a' + 1);
+                char colChar = cols[colIndex];
+                ChessPosition pos = new ChessPosition(row, colChar - 'a' + 1);
                 ChessPiece piece = board.getPiece(pos);
-                System.out.print(getSymbolWithBackground(piece, row, colIndex));
+
+                // Calculate correct light/dark pattern
+                boolean isLight = (pov == ChessGame.TeamColor.WHITE)
+                        ? ((row + colIndex) % 2 == 0)
+                        : ((row + (7 - colIndex)) % 2 == 0);
+
+                System.out.print(getSymbolWithBackground(piece, isLight));
             }
             System.out.println(" " + EscapeSequences.SET_TEXT_BOLD + row + EscapeSequences.RESET_TEXT_BOLD_FAINT);
         }
-        System.out.println(EscapeSequences.SET_TEXT_BOLD + "  " + getColumnHeader(cols) + EscapeSequences.RESET_TEXT_BOLD_FAINT + "\n");
+        System.out.println("   " + EscapeSequences.SET_TEXT_BOLD + getColumnHeader(cols) + EscapeSequences.RESET_TEXT_BOLD_FAINT + "\n");
     }
 
     private static String getColumnHeader(char[] cols) {
@@ -34,8 +40,7 @@ public class BoardDisplay {
         return sb.toString();
     }
 
-    private static String getSymbolWithBackground(ChessPiece piece, int row, int colIndex) {
-        boolean isLightSquare = (row + colIndex) % 2 == 0;
+    private static String getSymbolWithBackground(ChessPiece piece, boolean isLightSquare) {
         String bgColor = isLightSquare
                 ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
                 : EscapeSequences.SET_BG_COLOR_DARK_GREY;
