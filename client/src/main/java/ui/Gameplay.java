@@ -5,17 +5,15 @@ import chess.*;
 
 public class Gameplay {
     private final Scanner scanner = new Scanner(System.in);
-    private final int gameID;
     private final String playerColor;
 
     public Gameplay(String username, String authToken, int gameID, String color) {
-        this.gameID = gameID;
         this.playerColor = color;
     }
 
     public void run() {
         System.out.println(EscapeSequences.ERASE_SCREEN + EscapeSequences.SET_TEXT_BOLD +
-                "Now viewing game " + gameID + " as " + (playerColor) +
+                "Now viewing game as " + (playerColor) +
                 EscapeSequences.RESET_TEXT_BOLD_FAINT);
 
         drawInitialBoard();

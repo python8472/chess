@@ -91,19 +91,24 @@ public class PostLogin {
         try {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
-            System.out.println("Error: game number must be an integer. Use 'list' to see available games.");
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Error: game number must be an integer. Use 'list' to see available games." +
+                    EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
         if (index < 0 || index >= cachedGames.size()) {
-            System.out.println("Error: invalid game number. Use 'list' to see available games.");
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Error: invalid game number. Use 'list' to see available games." +
+                    EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
         int gameID = cachedGames.get(index).getGameID();
         String playerColor = tokens[2].toUpperCase();
         if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
-            System.out.println("Error: color must be WHITE or BLACK.");
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: color must be WHITE or BLACK." +
+                    EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
@@ -129,12 +134,16 @@ public class PostLogin {
         try {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
-            System.out.println("Error: game number must be an integer. Use 'list' to see available games.");
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Error: game number must be an integer. Use 'list' to see available games." +
+                    EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
         if (index < 0 || index >= cachedGames.size()) {
-            System.out.println("Error: invalid game number. Use 'list' to see available games.");
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Error: invalid game number. Use 'list' to see available games." +
+                    EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
