@@ -49,16 +49,16 @@ public class GameService {
         }
 
         Integer gameID = request.getGameID();
-        if (gameID == null || gameDAO.getGame(gameID) == null) {
+        GameData game = (gameID == null) ? null : gameDAO.getGame(gameID);
+        if (game == null) {
             return new JoinGameResult("Error: bad request");
         }
 
         String color = request.getPlayerColor();
-        if (color == null || (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK"))) {
+        if (color == null || (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK") && !color.equalsIgnoreCase("OBSERVER"))) {
             return new JoinGameResult("Error: bad request");
         }
 
-        GameData game = gameDAO.getGame(gameID);
         String username = auth.getUsername();
 
         switch (color.toUpperCase()) {
@@ -74,9 +74,19 @@ public class GameService {
                 }
                 game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username, game.game());
             }
+            case "OBSERVER" -> {
+                // No state mutation for observers in Phase 5
+                // You might log this later, but for now we just return success
+                return new JoinGameResult(); // still valid
+            }
         }
 
-        gameDAO.updateGame(game);
+        // Only persist changes if player slot changed
+        if (!color.equalsIgnoreCase("OBSERVER")) {
+            gameDAO.updateGame(game);
+        }
+
         return new JoinGameResult();
     }
+
 }

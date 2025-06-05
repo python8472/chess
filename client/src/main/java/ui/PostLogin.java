@@ -40,11 +40,38 @@ public class PostLogin {
                     case "create" -> handleCreate(tokens);
                     case "list" -> handleList();
                     case "join" -> handleJoin(tokens);
+                    case "observe" -> handleObserve(tokens);
                     default -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Unknown command: " + command + EscapeSequences.RESET_TEXT_COLOR);
                 }
             } catch (Exception e) {
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
             }
+        }
+    }
+
+    private void handleObserve(String[] tokens) throws Exception {
+        if (tokens.length < 2) {
+            System.out.println("Usage: observe <game-id>");
+            return;
+        }
+
+        int gameID = Integer.parseInt(tokens[1]);
+
+        // Optional: validate that the game ID exists first
+        ListGamesResult gamesResult = facade.listGames(authToken);
+        boolean found = gamesResult.getGames().stream().anyMatch(g -> g.getGameID() == gameID);
+        if (!found) {
+            System.out.println("Error: Game ID not found.");
+            return;
+        }
+
+        JoinGameRequest request = new JoinGameRequest("OBSERVER", gameID);
+        JoinGameResult result = facade.joinGame(request, authToken);
+        if (result.getMessage() == null) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Observing game " + gameID + EscapeSequences.RESET_TEXT_COLOR);
+            new Gameplay(username, authToken, gameID, "OBSERVER").run(); // internal use
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: " + result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 

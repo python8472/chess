@@ -28,7 +28,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     public void clearDatabase() {
-        server.clear(); // delete just for the testing
+        server.clear(); // delete all just for the testing
     }
 
     @Test
