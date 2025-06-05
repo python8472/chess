@@ -161,6 +161,7 @@ public class PostLogin {
     }
 
     private void handleCreate(String[] tokens) throws Exception {
+
         if (tokens.length < 2) {
             System.out.println("Usage: create <game-name>");
             return;
@@ -170,7 +171,7 @@ public class PostLogin {
         CreateGameResult result = facade.createGame(new CreateGameRequest(name), authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                    "Game created with ID " + result.getGameID() + EscapeSequences.RESET_TEXT_COLOR);
+                    "Game created" + EscapeSequences.RESET_TEXT_COLOR);
             handleList();
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to create game: " +
