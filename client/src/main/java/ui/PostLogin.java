@@ -13,6 +13,8 @@ public class PostLogin {
     private final String username;
     private final String authToken;
 
+    private List<GameData> cachedGames = List.of();  // updated on each list cal
+
     public PostLogin(String username, String authToken) {
         this.username = username;
         this.authToken = authToken;
@@ -25,12 +27,13 @@ public class PostLogin {
                 EscapeSequences.RESET_TEXT_BOLD_FAINT);
         HelpHelper.printPostLoginHelp();
 
+
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
                     "(" + username + ") > " +
                     EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {continue;}
+            if (input.isEmpty()) continue;
 
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
@@ -58,51 +61,93 @@ public class PostLogin {
         }
     }
 
-    private void handleObserve(String[] tokens) throws Exception {
-        if (tokens.length < 2) {
-            System.out.println("Usage: observe <game-id>");
-            return;
-        }
-
-        int gameID = Integer.parseInt(tokens[1]);
-        int gameIndex;
-        try {
-            gameIndex = Integer.parseInt(tokens[1]);
-        } catch (NumberFormatException e) {
-            System.out.println("Error: game number must be a valid integer (e.g., 'join 1 WHITE').");
-            return;
-        }
-
-        // Optional: validate that the game ID exists first
-        ListGamesResult gamesResult = facade.listGames(authToken);
-        boolean found = gamesResult.getGames().stream().anyMatch(g -> g.getGameID() == gameID);
-        if (!found) {
-            System.out.println("Error: Game ID not found.");
-            return;
-        }
-
-        JoinGameRequest request = new JoinGameRequest("OBSERVER", gameID);
-        JoinGameResult result = facade.joinGame(request, authToken);
+    private void handleList() throws Exception {
+        ListGamesResult result = facade.listGames(authToken);
         if (result.getMessage() == null) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                    "Observing game " +
-                    gameID +
-                    EscapeSequences.RESET_TEXT_COLOR);
-            new Gameplay(username, authToken, gameID, "OBSERVER").run(); // internal use
+            cachedGames = result.getGames();
+            if (cachedGames.isEmpty()) {
+                System.out.println("No games available.");
+            } else {
+                for (int i = 0; i < cachedGames.size(); i++) {
+                    GameData game = cachedGames.get(i);
+                    System.out.printf("Game %d | Name: %s | White: %s | Black: %s%n",
+                            i + 1, game.getGameName(),
+                            game.getWhiteUsername(), game.getBlackUsername());
+                }
+            }
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: " +
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to list games: " +
                     result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
-    private void logout() throws Exception {
-        var result = facade.logout(new LogoutRequest(authToken), authToken);
+    private void handleJoin(String[] tokens) throws Exception {
+        if (tokens.length < 3) {
+            System.out.println("Usage: join <game-number> <WHITE|BLACK>");
+            return;
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(tokens[1]) - 1;
+        } catch (NumberFormatException e) {
+            System.out.println("Error: game number must be an integer. Use 'list' to see available games.");
+            return;
+        }
+
+        if (index < 0 || index >= cachedGames.size()) {
+            System.out.println("Error: invalid game number. Use 'list' to see available games.");
+            return;
+        }
+
+        int gameID = cachedGames.get(index).getGameID();
+        String playerColor = tokens[2].toUpperCase();
+        if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+            System.out.println("Error: color must be WHITE or BLACK.");
+            return;
+        }
+
+        JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+        JoinGameResult result = facade.joinGame(request, authToken);
+        if (result.getMessage() == null) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Joined game " +
+                    (index + 1) + " as " + playerColor + EscapeSequences.RESET_TEXT_COLOR);
+            new Gameplay(username, authToken, gameID, playerColor).run();
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: " +
+                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+        }
+    }
+
+    private void handleObserve(String[] tokens) throws Exception {
+        if (tokens.length < 2) {
+            System.out.println("Usage: observe <game-number>");
+            return;
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(tokens[1]) - 1;
+        } catch (NumberFormatException e) {
+            System.out.println("Error: game number must be an integer. Use 'list' to see available games.");
+            return;
+        }
+
+        if (index < 0 || index >= cachedGames.size()) {
+            System.out.println("Error: invalid game number. Use 'list' to see available games.");
+            return;
+        }
+
+        int gameID = cachedGames.get(index).getGameID();
+        JoinGameRequest request = new JoinGameRequest("OBSERVER", gameID);
+        JoinGameResult result = facade.joinGame(request, authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                    "Logged out successfully." + EscapeSequences.RESET_TEXT_COLOR);
+                    "Observing game " + (index + 1) + EscapeSequences.RESET_TEXT_COLOR);
+            new Gameplay(username, authToken, gameID, "OBSERVER").run();
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Logout failed: "
-                    + result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: " +
+                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -116,57 +161,22 @@ public class PostLogin {
         CreateGameResult result = facade.createGame(new CreateGameRequest(name), authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                    "Game created with ID " +
-                    result.getGameID() + EscapeSequences.RESET_TEXT_COLOR);
+                    "Game created with ID " + result.getGameID() + EscapeSequences.RESET_TEXT_COLOR);
+            handleList();
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to create game: " +
                     result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
-    private void handleList() throws Exception {
-        ListGamesResult result = facade.listGames(authToken);
+    private void logout() throws Exception {
+        var result = facade.logout(new LogoutRequest(authToken), authToken);
         if (result.getMessage() == null) {
-            List<GameData> games = result.getGames();
-            if (games.isEmpty()) {
-                System.out.println("No games available.");
-            } else {
-                for (GameData game : games) {
-                    System.out.printf("ID: %d | Name: %s | White: %s | Black: %s%n",
-                            game.getGameID(), game.getGameName(),
-                            game.getWhiteUsername(), game.getBlackUsername());
-                }
-            }
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
+                    "Logged out successfully." + EscapeSequences.RESET_TEXT_COLOR);
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to list games: " +
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Logout failed: " +
                     result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
     }
-
-    private void handleJoin(String[] tokens) throws Exception {
-        if (tokens.length < 3) {
-            System.out.println("Usage: join <game-id> <WHITE|BLACK|>");
-            return;
-        }
-
-        int gameID = Integer.parseInt(tokens[1]);
-        String playerColor = tokens[2].toUpperCase();
-        String color = switch (playerColor) {
-            case "WHITE" -> "WHITE";
-            case "BLACK" -> "BLACK";
-            default -> throw new IllegalArgumentException("Color must be WHITE or BLACK");
-        };
-
-        JoinGameRequest request = new JoinGameRequest(color, gameID);
-        JoinGameResult result = facade.joinGame(request, authToken);
-        if (result.getMessage() == null) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Joined game " +
-                    gameID + " as " + (color) + EscapeSequences.RESET_TEXT_COLOR);
-            new Gameplay(username, authToken, gameID, color).run(); // handoff
-        } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
-        }
-    }
-
 }

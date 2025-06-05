@@ -34,9 +34,13 @@ public class BoardDisplay {
 
     private static String getColumnHeader(char[] cols) {
         StringBuilder sb = new StringBuilder();
-        for (char c : cols) {
-            sb.append(" ").append(c).append(" ");
+
+        if (cols[0] == 'a') { // WHITE perspective
+            sb.append("a   b   c  d   e   f  g   h ");
+        } else { // BLACK perspective
+            sb.append("h   g   f  e   d   c  b   a ");
         }
+
         return sb.toString();
     }
 
