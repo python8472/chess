@@ -19,7 +19,8 @@ public class HelpHelper {
         System.out.println(SET_TEXT_COLOR_GREEN + "  create" + RESET_TEXT_COLOR + " <game-name>             Create a new game");
         System.out.println(SET_TEXT_COLOR_GREEN + "  list" + RESET_TEXT_COLOR + "                          List all games");
         System.out.println(SET_TEXT_COLOR_GREEN + "  join" + RESET_TEXT_COLOR + " <game-id> <WHITE|BLACK|empty>  Join a game");
-        System.out.println(SET_TEXT_COLOR_GREEN + "  observe" + RESET_TEXT_COLOR + " <game-id>              Observe a game"); //needed for phase 5 and 6 rip
+        System.out.println(SET_TEXT_COLOR_GREEN + "  observe" + RESET_TEXT_COLOR + " <game-id>              Observe a game");
+        //needed for phase 5 and 6 rip
     }
 
     public static void printGameplayHelp() {
