@@ -83,7 +83,7 @@ public class GameService {
 
         // Only persist changes if player slot changed
         if (!color.equalsIgnoreCase("OBSERVER")) {
-            gameDAO.updateGame(game);
+            gameDAO.updateGame(request.getGameID(), game);
         }
 
         return new JoinGameResult();

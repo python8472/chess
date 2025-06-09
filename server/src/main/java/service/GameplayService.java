@@ -2,12 +2,15 @@ package service;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPosition;
-import dataaccess.*;
+import chess.InvalidMoveException;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import request.*;
 import result.*;
+import chess.GameHelper;
 
 import java.util.Collection;
 
@@ -16,48 +19,65 @@ public class GameplayService {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public GameplayService() {
-        var db = DatabaseManager.getInstance();
-        this.gameDAO = db.getGameDAO();
-        this.authDAO = db.getAuthDAO();
+    public GameplayService(GameDAO gameDAO, AuthDAO authDAO) {
+        this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
     }
 
-    public MoveResult makeMove(MoveRequest request) {
+    public void makeMove(MoveRequest request) {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
-            if (auth == null) return new MoveResult("Error: unauthorized");
+            if (auth == null) {
+                return;
+            }
 
             GameData gameData = gameDAO.getGame(request.gameID());
-            if (gameData == null) return new MoveResult("Error: game not found");
+            if (gameData == null) {
+                return;
+            }
 
-            ChessGame game = gameData.getGame();
+            ChessGame game = gameData.game();
+
             if (game.getTeamTurn() != request.playerColor()) {
-                return new MoveResult("Error: not your turn");
+                return;
             }
 
             Collection<ChessMove> legalMoves = game.validMoves(request.move().getStartPosition());
-            if (!legalMoves.contains(request.move())) {
-                return new MoveResult("Error: illegal move");
+            boolean isLegal = legalMoves.stream().anyMatch(move -> move.equals(request.move()));
+            if (!isLegal) {
+                return;
             }
 
             game.makeMove(request.move());
             gameDAO.updateGame(request.gameID(), gameData);
 
-            return new MoveResult(); // success
-        } catch (DataAccessException e) {
-            return new MoveResult("Error: " + e.getMessage());
+            // Detect endgame conditions
+            ChessGame.TeamColor nextTurn = game.getTeamTurn();
+            boolean inCheck = game.isInCheck(nextTurn);
+            boolean noMoves = GameHelper.hasNoLegalMoves(game.getBoard(), nextTurn);
+
+            if (inCheck && noMoves) {
+            } else if (!inCheck && noMoves) {
+            }
+
+        } catch (DataAccessException | InvalidMoveException e) {
         }
     }
 
     public ResignResult resign(ResignRequest request) {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
-            if (auth == null) return new ResignResult("Error: unauthorized");
+            if (auth == null) {
+                return new ResignResult("Error: unauthorized");
+            }
 
             GameData gameData = gameDAO.getGame(request.gameID());
-            if (gameData == null) return new ResignResult("Error: game not found");
+            if (gameData == null) {
+                return new ResignResult("Error: game not found");
+            }
 
-            return new ResignResult(); // success
+            return new ResignResult("Player resigned."); // You could also mark game as over if you extend GameData.
+
         } catch (DataAccessException e) {
             return new ResignResult("Error: " + e.getMessage());
         }
@@ -66,12 +86,25 @@ public class GameplayService {
     public LeaveResult leave(LeaveRequest request) {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
-            if (auth == null) return new LeaveResult("Error: unauthorized");
+            if (auth == null) {
+                return new LeaveResult("Error: unauthorized");
+            }
 
             GameData gameData = gameDAO.getGame(request.gameID());
-            if (gameData == null) return new LeaveResult("Error: game not found");
+            if (gameData == null) {
+                return new LeaveResult("Error: game not found");
+            }
 
-            return new LeaveResult(); // success
+            String username = auth.getUsername();
+            if (username.equals(gameData.getWhiteUsername())) {
+                gameData = new GameData(gameData.getGameID(), null, gameData.getBlackUsername(), gameData.getGameName(), gameData.game());
+            } else if (username.equals(gameData.getBlackUsername())) {
+                gameData = new GameData(gameData.getGameID(), gameData.getWhiteUsername(), null, gameData.getGameName(), gameData.game());
+            }
+
+            gameDAO.updateGame(request.gameID(), gameData);
+            return new LeaveResult();
+
         } catch (DataAccessException e) {
             return new LeaveResult("Error: " + e.getMessage());
         }
