@@ -1,11 +1,14 @@
 package websocket;
 
 import com.google.gson.Gson;
-import dataaccess.*;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import model.AuthData;
+import request.*;
+import result.*;
 import service.GameplayService;
 import websocket.commands.*;
 import websocket.messages.*;
-import model.AuthData;
 
 public class WebSocketHandler {
 
@@ -13,8 +16,8 @@ public class WebSocketHandler {
     private final GameplayService gameplayService;
     private final Gson gson = new Gson();
 
-    public WebSocketHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
-        this.gameplayService = new GameplayService(userDAO, gameDAO, authDAO);
+    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
+        this.gameplayService = new GameplayService(gameDAO, authDAO);
     }
 
     public void joinGame(int gameID, Connection connection) {
@@ -26,32 +29,50 @@ public class WebSocketHandler {
     }
 
     public void receiveMessage(String messageJson, int gameID, Connection connection) {
-        UserGameCommand command = gson.fromJson(messageJson, UserGameCommand.class);
+        UserGameCommand baseCommand = gson.fromJson(messageJson, UserGameCommand.class);
+        String commandType = baseCommand.getCommandType();
 
-        switch (command.getCommandType()) {
-            case "makeMove":
-                MakeMoveCommand moveCmd = gson.fromJson(messageJson, MakeMoveCommand.class);
-                gameplayService.makeMove(gameID, moveCmd, connection);
-                break;
+        switch (commandType) {
+            case "makeMove" -> {
+                MakeMoveCommand cmd = gson.fromJson(messageJson, MakeMoveCommand.class);
+                MoveRequest request = new MoveRequest(cmd.getAuthToken(), gameID, cmd.getPlayerColor(), cmd.getMove());
+                MoveResult result = gameplayService.makeMove(request);
+                connection.send(gson.toJson(new NotificationMessage(result.getMessage() != null ? result.getMessage() : "Move successful.")));
+                if (result.getMessage() != null && result.getMessage().startsWith("Game over")) {
+                    connections.broadcast(gameID, gson.toJson(new NotificationMessage(result.getMessage())));
+                } else {
+                    connections.broadcast(gameID, gson.toJson(new NotificationMessage(cmd.getPlayerColor() + " moved.")));
+                }
+            }
 
-            case "resign":
-                ResignCommand resignCmd = gson.fromJson(messageJson, ResignCommand.class);
-                gameplayService.resignGame(gameID, resignCmd, connection);
-                break;
+            case "resign" -> {
+                ResignCommand cmd = gson.fromJson(messageJson, ResignCommand.class);
+                ResignRequest request = new ResignRequest(cmd.getAuthToken(), gameID);
+                ResignResult result = gameplayService.resign(request);
+                connections.broadcast(gameID, gson.toJson(new NotificationMessage(
+                        result.getMessage() != null ? result.getMessage() : "A player has resigned."
+                )));
+            }
 
-            case "leave":
-                LeaveCommand leaveCmd = gson.fromJson(messageJson, LeaveCommand.class);
-                gameplayService.leaveGame(gameID, leaveCmd, connection);
-                break;
+            case "leave" -> {
+                LeaveCommand cmd = gson.fromJson(messageJson, LeaveCommand.class);
+                LeaveRequest request = new LeaveRequest(cmd.getAuthToken(), gameID);
+                LeaveResult result = gameplayService.leave(request);
+                connection.send(gson.toJson(new NotificationMessage(
+                        result.getMessage() != null ? result.getMessage() : "You left the game."
+                )));
+                leaveGame(gameID, connection);
+            }
 
-            case "highlightMoves":
-                HighlightMovesCommand highlightCmd = gson.fromJson(messageJson, HighlightMovesCommand.class);
-                gameplayService.highlightMoves(gameID, highlightCmd, connection);
-                break;
+            case "highlightMoves" -> {
+                HighlightMovesCommand cmd = gson.fromJson(messageJson, HighlightMovesCommand.class);
+                // Assume you implement highlightMoves in GameplayService later
+                connection.send(gson.toJson(new ErrorMessage("Highlight moves not yet implemented")));
+            }
 
-            default:
-                connection.send(gson.toJson(new ErrorMessage("Unknown command type: " + command.getCommandType())));
-                break;
+            default -> {
+                connection.send(gson.toJson(new ErrorMessage("Unknown command type: " + commandType)));
+            }
         }
     }
 }
