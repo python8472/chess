@@ -30,7 +30,7 @@ public class WebSocketHandler {
 
     public void receiveMessage(String messageJson, int gameID, Connection connection) {
         UserGameCommand baseCommand = gson.fromJson(messageJson, UserGameCommand.class);
-        String commandType = baseCommand.getCommandType();
+        String commandType = String.valueOf(baseCommand.getCommandType());
 
         switch (commandType) {
             case "makeMove" -> {

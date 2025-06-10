@@ -24,28 +24,28 @@ public class GameplayService {
         this.authDAO = authDAO;
     }
 
-    public void makeMove(MoveRequest request) {
+    public MoveResult makeMove(MoveRequest request) {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
             if (auth == null) {
-                return;
+                return null;
             }
 
             GameData gameData = gameDAO.getGame(request.gameID());
             if (gameData == null) {
-                return;
+                return null;
             }
 
             ChessGame game = gameData.game();
 
             if (game.getTeamTurn() != request.playerColor()) {
-                return;
+                return null;
             }
 
             Collection<ChessMove> legalMoves = game.validMoves(request.move().getStartPosition());
             boolean isLegal = legalMoves.stream().anyMatch(move -> move.equals(request.move()));
             if (!isLegal) {
-                return;
+                return null;
             }
 
             game.makeMove(request.move());
@@ -60,8 +60,9 @@ public class GameplayService {
             } else if (!inCheck && noMoves) {
             }
 
-        } catch (DataAccessException | InvalidMoveException e) {
+        } catch (DataAccessException | InvalidMoveException ignored) {
         }
+        return null;
     }
 
     public ResignResult resign(ResignRequest request) {
