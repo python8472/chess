@@ -68,7 +68,7 @@ public class SQLGameDAOTest {
                 game.getGameID(), game.getGameName(), "nick", null,
                 gameDAO.getGame(game.getGameID()).game()
         );
-        gameDAO.updateGame(request.gameID(), updated);
+        gameDAO.updateGame(game.getGameID(), updated);
         GameData found = gameDAO.getGame(game.getGameID());
         assertEquals("nick", found.getWhiteUsername());
     }
@@ -82,7 +82,7 @@ public class SQLGameDAOTest {
                 game.getGameID(), game.getGameName(), "no_such_user", null,
                 gameDAO.getGame(game.getGameID()).game()
         );
-        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(request.gameID(), badUpdate));
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(game.getGameID(), badUpdate));
     }
 
     // --- listGames ---
