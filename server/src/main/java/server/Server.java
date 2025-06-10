@@ -4,11 +4,7 @@ import dataaccess.*;
 import dataaccess.sql.SQLUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
-import service.UserService;
-import service.LoginService;
-import service.LogoutService;
-import service.GameService;
-import service.ClearService;
+import service.*;
 import spark.Spark;
 
 public class Server {
@@ -45,6 +41,8 @@ public class Server {
         UserHandler userHandler = new UserHandler(userService, loginService, logoutService);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
+        GameplayService gameplayService = new GameplayService(gameDAO, authDAO);
+        GameplayHandler gameplayHandler = new GameplayHandler(gameplayService);
 
         // routes
         Spark.post("/user", userHandler.handleRegister);
@@ -54,6 +52,10 @@ public class Server {
         Spark.get("/game", gameHandler.handleListGames);
         Spark.post("/game", gameHandler.handleCreateGame);
         Spark.put("/game", gameHandler.handleJoinGame);
+
+        Spark.post("/game/move", gameplayHandler.handleMove);
+        Spark.post("/game/resign", gameplayHandler.handleResign);
+        Spark.post("/game/leave", gameplayHandler.handleLeave);
 
         Spark.delete("/db", clearHandler.handle);
 
