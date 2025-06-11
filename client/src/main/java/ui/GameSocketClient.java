@@ -10,15 +10,16 @@ import websocket.messages.ServerMessage;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.function.Consumer;
 
 @ClientEndpoint
 public class GameSocketClient {
 
-    private final String serverUrl;
+    private final Consumer<ServerMessage> serverUrl;
     private Session session;
     private final Gson gson = new Gson();
 
-    public GameSocketClient(String serverUrl) {
+    public GameSocketClient(Consumer<ServerMessage> serverUrl) {
         this.serverUrl = serverUrl;
     }
 

@@ -2,8 +2,15 @@ package ui;
 
 import chess.*;
 
+import java.util.Collection;
+
 public class BoardDisplay {
+
     public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov) {
+        displayBoard(board, pov, null); // no highlights
+    }
+
+    public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov, Collection<ChessPosition> highlights) {
         int[] rows = (pov == ChessGame.TeamColor.WHITE)
                 ? new int[]{8, 7, 6, 5, 4, 3, 2, 1}
                 : new int[]{1, 2, 3, 4, 5, 6, 7, 8};
@@ -20,12 +27,12 @@ public class BoardDisplay {
                 ChessPosition pos = new ChessPosition(row, colChar - 'a' + 1);
                 ChessPiece piece = board.getPiece(pos);
 
-                // Calculate correct light/dark pattern
+                boolean isHighlighted = highlights != null && highlights.contains(pos);
                 boolean isLight = (pov == ChessGame.TeamColor.WHITE)
                         ? ((row + colIndex) % 2 == 0)
                         : ((row + (7 - colIndex)) % 2 == 0);
 
-                System.out.print(getSymbolWithBackground(piece, isLight));
+                System.out.print(getSymbolWithBackground(piece, isLight, isHighlighted));
             }
             System.out.println(" " + EscapeSequences.SET_TEXT_BOLD + row + EscapeSequences.RESET_TEXT_BOLD_FAINT);
         }
@@ -34,26 +41,27 @@ public class BoardDisplay {
 
     private static String getColumnHeader(char[] cols) {
         StringBuilder sb = new StringBuilder();
-
-        if (cols[0] == 'a') { // WHITE perspective
-            sb.append("a   b   c  d   e   f  g   h ");
-        } else { // BLACK perspective
-            sb.append("h   g   f  e   d   c  b   a ");
+        for (char col : cols) {
+            sb.append(" ").append(col).append("  ");
         }
-
         return sb.toString();
     }
 
-    private static String getSymbolWithBackground(ChessPiece piece, boolean isLightSquare) {
-        String bgColor = isLightSquare
-                ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
-                : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+    private static String getSymbolWithBackground(ChessPiece piece, boolean isLightSquare, boolean isHighlighted) {
+        String bgColor;
+        if (isHighlighted) {
+            bgColor = EscapeSequences.SET_BG_COLOR_YELLOW;
+        } else {
+            bgColor = isLightSquare
+                    ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
+                    : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+        }
 
         String symbol;
         if (piece == null) {
-            symbol = EscapeSequences.EMPTY;
+            symbol = "   "; // fixed-width empty cell
         } else {
-            symbol = switch (piece.getTeamColor()) {
+            String pieceSymbol = switch (piece.getTeamColor()) {
                 case WHITE -> switch (piece.getPieceType()) {
                     case KING -> EscapeSequences.WHITE_KING;
                     case QUEEN -> EscapeSequences.WHITE_QUEEN;
@@ -71,6 +79,7 @@ public class BoardDisplay {
                     case PAWN -> EscapeSequences.BLACK_PAWN;
                 };
             };
+            symbol = " " + pieceSymbol + " ";
         }
 
         return bgColor + symbol + EscapeSequences.RESET_BG_COLOR;
