@@ -31,10 +31,26 @@ public class GameplayHandler {
         return gson.toJson(result);
     };
 
-    public Route handleLeave = (Request req, Response res) -> {
-        LeaveRequest request = gson.fromJson(req.body(), LeaveRequest.class);
-        LeaveResult result = gameplayService.leave(request);
-        res.type("application/json");
-        return gson.toJson(result);
+    public final Route handleLeave = (Request req, Response res) -> {
+        try {
+            LeaveRequest requestObj = gson.fromJson(req.body(), LeaveRequest.class);
+
+            LeaveResult result = gameplayService.leave(requestObj);
+
+            if (result.getMessage() != null) {
+                if (result.getMessage().contains("unauthorized")) {
+                    res.status(401);
+                } else {
+                    res.status(400);
+                }
+            } else {
+                res.status(200);
+            }
+
+            return gson.toJson(result);
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(new LeaveResult("Error: server failure"));
+        }
     };
 }

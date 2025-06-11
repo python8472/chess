@@ -5,6 +5,7 @@ import dataaccess.sql.SQLUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 
+import model.GameData;
 import service.*;
 import spark.Spark;
 import websocket.WebSocketHandler;

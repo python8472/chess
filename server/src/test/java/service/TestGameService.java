@@ -1,5 +1,6 @@
 package service;
 import dataaccess.*;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import request.*;
 import result.*;

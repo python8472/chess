@@ -49,7 +49,7 @@ public class GameplayService {
             }
 
             game.makeMove(request.move());
-            gameDAO.updateGame(request.gameID(), gameData);
+            gameDAO.updateGame(gameData);
 
             // Detect endgame conditions
             ChessGame.TeamColor nextTurn = game.getTeamTurn();
@@ -86,12 +86,12 @@ public class GameplayService {
 
     public LeaveResult leave(LeaveRequest request) {
         try {
-            AuthData auth = authDAO.getAuth(request.authToken());
+            AuthData auth = authDAO.getAuth(request.getAuthToken());
             if (auth == null) {
                 return new LeaveResult("Error: unauthorized");
             }
 
-            GameData gameData = gameDAO.getGame(request.gameID());
+            GameData gameData = gameDAO.getGame(request.getGameID());
             if (gameData == null) {
                 return new LeaveResult("Error: game not found");
             }
@@ -100,21 +100,22 @@ public class GameplayService {
             String white = gameData.getWhiteUsername();
             String black = gameData.getBlackUsername();
 
-            if (username.equals(white)) {
-                white = null;
-            } else if (username.equals(black)) {
-                black = null;
+            if (username.equals(gameData.getWhiteUsername())) {
+                gameData = new GameData(
+                        gameData.getGameID(),
+                        gameData.getGameName(),
+                        null,  // set white username to null
+                        gameData.getBlackUsername(),
+                        gameData.game());
+            } else if (username.equals(gameData.getBlackUsername())) {
+                gameData = new GameData(
+                        gameData.getGameID(),
+                        gameData.getGameName(),
+                        gameData.getWhiteUsername(),
+                        null,  // set black username to null
+                        gameData.game());
             }
-
-            gameData = new GameData(
-                    gameData.getGameID(),
-                    gameData.getGameName(),
-                    white,
-                    black,
-                    gameData.game()
-            );
-
-            gameDAO.updateGame(request.gameID(), gameData);
+            gameDAO.updateGame(gameData);
             return new LeaveResult();
 
         } catch (DataAccessException e) {

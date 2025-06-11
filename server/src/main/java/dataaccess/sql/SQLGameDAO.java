@@ -71,7 +71,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(int i, GameData gameData) throws DataAccessException {
+    public void updateGame(GameData gameData) throws DataAccessException {
         String sql = "UPDATE games SET whitePlayer=?, blackPlayer=?, game=? WHERE id=?";
         String gameJson = gson.toJson(gameData.game());
 
@@ -84,10 +84,11 @@ public class SQLGameDAO implements GameDAO {
             stmt.setInt(4, gameData.getGameID());
             stmt.executeUpdate();
 
-        } catch (SQLException | DataAccessException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("updateGame failed", e);
         }
     }
+
 
     @Override
     public List<GameData> listGames() throws DataAccessException {

@@ -63,16 +63,28 @@ public class GameService {
 
         switch (color.toUpperCase()) {
             case "WHITE" -> {
-                if (game.getWhiteUsername() != null) {
-                    return new JoinGameResult("Error: white player already joined KMS");
+                String curr = game.getWhiteUsername();
+                if (curr != null && !curr.isBlank()) {
+                    return new JoinGameResult("Error: white player already joined");
                 }
-                game = new GameData(game.getGameID(), game.getGameName(), username, game.getBlackUsername(), game.game());
+                game = new GameData(
+                        game.getGameID(),
+                        game.getGameName(),
+                        username,
+                        game.getBlackUsername(),
+                        game.game());
             }
             case "BLACK" -> {
-                if (game.getBlackUsername() != null && !game.getBlackUsername().isEmpty()) {
+                String curr = game.getBlackUsername();
+                if (curr != null && !curr.isBlank()) {
                     return new JoinGameResult("Error: black player already joined");
                 }
-                game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username, game.game());
+                game = new GameData(
+                        game.getGameID(),
+                        game.getGameName(),
+                        game.getWhiteUsername(),
+                        username,
+                        game.game());
             }
             case "OBSERVER" -> {
                 return new JoinGameResult();
@@ -80,7 +92,7 @@ public class GameService {
         }
 
         if (!color.equalsIgnoreCase("OBSERVER")) {
-            gameDAO.updateGame(request.getGameID(), game);
+            gameDAO.updateGame(game);
         }
 
         return new JoinGameResult();

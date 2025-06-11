@@ -1,9 +1,11 @@
 package result;
 
 public class LeaveResult {
-    private String message;
+    private final String message;
 
-    public LeaveResult() {}
+    public LeaveResult() {
+        this.message = null;
+    }
 
     public LeaveResult(String message) {
         this.message = message;

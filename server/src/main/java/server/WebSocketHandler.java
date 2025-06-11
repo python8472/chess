@@ -85,7 +85,7 @@ public class WebSocketHandler {
                         return;
                     }
                     g.makeMove(move);
-                    gameDAO.updateGame(gameID, game);
+                    gameDAO.updateGame(game);
                     broadcast(gameID, new LoadGameMessage(g));
                     broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " moved: " + move));
                     if (g.isInCheckmate(g.getTeamTurn())) broadcast(gameID, new NotificationMessage(auth.getUsername() + " is in checkmate!"));
@@ -112,7 +112,7 @@ public class WebSocketHandler {
 
                     // Mark game as over and send notif
                     game.game().setGameOver(true);
-                    gameDAO.updateGame(gameID, game);
+                    gameDAO.updateGame(game);
                     broadcast(gameID, new NotificationMessage(auth.getUsername() + " resigned."));
                 }
 
