@@ -4,10 +4,10 @@ import dataaccess.*;
 import dataaccess.sql.SQLUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
-import org.eclipse.jetty.servlet.ServletContextHandler;
+
 import service.*;
 import spark.Spark;
-import spark.embeddedserver.jetty.EmbeddedJettyFactory;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -25,6 +25,7 @@ public class Server {
         }
 
         Spark.port(desiredPort);
+        Spark.webSocket("/ws", GameWebSocket.class);
         Spark.staticFiles.location("web");
 
         // shared DAO instances
@@ -45,6 +46,8 @@ public class Server {
         ClearHandler clearHandler = new ClearHandler(clearService);
         GameplayService gameplayService = new GameplayService(gameDAO, authDAO);
         GameplayHandler gameplayHandler = new GameplayHandler(gameplayService);
+        WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO);
+        GameWebSocket.setHandler(wsHandler);
 
         // routes
         Spark.post("/user", userHandler.handleRegister);
@@ -64,27 +67,6 @@ public class Server {
         Spark.init();
         Spark.awaitInitialization();
 
-        try {
-            // Extract the internal Jetty server from Spark
-            var field = Spark.class.getDeclaredField("serverFactory");
-            field.setAccessible(true);
-            var factory = (EmbeddedJettyFactory) field.get(null);
-            var jettyServerField = factory.getClass().getDeclaredField("server");
-            jettyServerField.setAccessible(true);
-            Server jetty = (Server) jettyServerField.get(factory);
-
-            ServletContextHandler context = (ServletContextHandler) jetty.getHandler();
-
-            JettyWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) -> {
-                WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO);
-                GameWebSocket.setHandler(wsHandler);
-                wsContainer.addMapping("/ws", (req, resp) -> new GameWebSocket());
-            });
-
-            System.out.println("✅ Registered WebSocket `/ws`");
-        } catch (Exception e) {
-            System.err.println("❌ Failed to register WebSocket `/ws`: " + e.getMessage());
-        }
         return Spark.port();
     }
 

@@ -15,6 +15,8 @@ public class ChessGame {
 
     private TeamColor whoseTurn = TeamColor.WHITE; //to track turns
     private ChessBoard cBoard;
+    private boolean gameOver = false;
+
 
     public ChessGame() {
         cBoard = new ChessBoard();
@@ -39,6 +41,17 @@ public class ChessGame {
         whoseTurn = team;
     }
 
+    public boolean getGameOver() {
+        return gameOver ||
+                isInCheckmate(TeamColor.WHITE) ||
+                isInCheckmate(TeamColor.BLACK) ||
+                isInStalemate(TeamColor.WHITE) ||
+                isInStalemate(TeamColor.BLACK);
+    }
+
+    public void setGameOver(boolean b) {
+        this.gameOver = b;
+    }
     /**
      * Enum identifying the 2 possible teams in a chess game
      */

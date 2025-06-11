@@ -3,6 +3,8 @@ package server;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import websocket.WebSocketHandler;
+import websocket.commands.UserGameCommand;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,14 +20,33 @@ public class GameWebSocket {
     }
 
     @OnWebSocketConnect
-    public void onConnect(Session session) {}
+    public void onConnect(Session session) {
+        // Optional: you could log the connection open if needed
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        int gameID = extractGameID(message);
-        sessionToGameID.putIfAbsent(session, gameID);
-        handler.joinGame(gameID, session);
-        handler.receiveMessage(message, gameID, session);
+        try {
+            // Deserialize the message to extract game ID and auth token
+            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+            int gameID = command.getGameID();
+
+            // Save session to game ID mapping if not already done
+            sessionToGameID.putIfAbsent(session, gameID);
+
+            // Register session and handle the command
+            handler.joinGame(gameID, session);
+            handler.receiveMessage(message, gameID, session);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                session.getRemote().sendString(
+                        gson.toJson(new websocket.messages.ErrorMessage("Error: Invalid message format."))
+                );
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     @OnWebSocketClose
@@ -34,15 +55,6 @@ public class GameWebSocket {
         if (gameID != null) {
             handler.leaveGame(gameID, session);
         }
-    }
-
-    private int extractGameID(String json) {
-        String key = "\"gameID\":";
-        int i = json.indexOf(key);
-        if (i == -1) throw new IllegalArgumentException("Missing gameID");
-        int start = i + key.length();
-        int end = json.indexOf(",", start);
-        if (end == -1) end = json.indexOf("}", start);
-        return Integer.parseInt(json.substring(start, end).trim());
+        sessionToGameID.remove(session);
     }
 }

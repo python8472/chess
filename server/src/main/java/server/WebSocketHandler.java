@@ -1,110 +1,137 @@
-package server;
+// WebSocketHandler.java
+package websocket;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
-import request.*;
-import result.*;
-import service.GameplayService;
+import dataaccess.GameDAO;
+import model.AuthData;
+import model.GameData;
+import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.*;
 import websocket.messages.*;
-import org.eclipse.jetty.websocket.api.Session;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketHandler {
 
-    private final GameplayService gameplayService;
-    private final Gson gson = new Gson();
     private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
+    private final Gson gson = new Gson();
 
-    private final Map<Integer, Set<Session>> connections = new HashMap<>();
+    // gameID -> list of sessions
+    private final Map<Integer, Set<Session>> gameSessions = new ConcurrentHashMap<>();
+    private final Map<Session, String> sessionToUsername = new ConcurrentHashMap<>();
 
     public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
-        this.gameplayService = new GameplayService(gameDAO, authDAO);
         this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
     }
 
     public void joinGame(int gameID, Session session) {
-        connections.computeIfAbsent(gameID, k -> new HashSet<>()).add(session);
+        gameSessions.computeIfAbsent(gameID, k -> ConcurrentHashMap.newKeySet()).add(session);
     }
 
     public void leaveGame(int gameID, Session session) {
-        if (connections.containsKey(gameID)) {
-            connections.get(gameID).remove(session);
-        }
-    }
-
-    public void broadcast(int gameID, String message) {
-        var sessions = connections.getOrDefault(gameID, Collections.emptySet());
-        for (var s : sessions) {
-            try {
-                if (s.isOpen()) s.getRemote().sendString(message);
-            } catch (IOException e) {
-                System.err.println("Broadcast error: " + e.getMessage());
-            }
-        }
+        gameSessions.getOrDefault(gameID, Set.of()).remove(session);
+        sessionToUsername.remove(session);
     }
 
     public void receiveMessage(String messageJson, int gameID, Session session) {
-        UserGameCommand baseCommand = gson.fromJson(messageJson, UserGameCommand.class);
+        UserGameCommand base = gson.fromJson(messageJson, UserGameCommand.class);
+        String authToken = base.getAuthToken();
+        String commandType = base.getCommandType().name();
 
         try {
-            switch (baseCommand.getCommandType()) {
-                case CONNECT -> {
-                    ChessGame game = gameDAO.getGame(gameID).game();
-                    session.getRemote().sendString(gson.toJson(new LoadGameMessage(game)));
-                    broadcast(gameID, gson.toJson(new NotificationMessage("A user connected.")));
-                }
+            AuthData auth = authDAO.getAuth(authToken);
+            if (auth == null) {
+                send(session, new ErrorMessage("Error: invalid authToken"));
+                return;
+            }
+            GameData game = gameDAO.getGame(gameID);
+            if (game == null) {
+                send(session, new ErrorMessage("Error: invalid gameID"));
+                return;
+            }
 
-                case MAKE_MOVE -> {
+            sessionToUsername.put(session, auth.getUsername());
+
+            switch (commandType) {
+                case "CONNECT" -> {
+                    send(session, new LoadGameMessage(game.game()));
+                    broadcast(gameID, new NotificationMessage(notifyConnected(auth.getUsername(), game)));
+                }
+                case "MAKE_MOVE" -> {
                     MakeMoveCommand cmd = gson.fromJson(messageJson, MakeMoveCommand.class);
-                    MoveRequest request = new MoveRequest(cmd.getAuthToken(), gameID, cmd.getPlayerColor(), cmd.getMove());
-                    MoveResult result = gameplayService.makeMove(request);
-
-                    if (result.getMessage() != null && result.getMessage().toLowerCase().contains("error")) {
-                        session.getRemote().sendString(gson.toJson(new ErrorMessage(result.getMessage())));
-                    } else {
-                        ChessGame updated = gameDAO.getGame(gameID).game();
-                        broadcast(gameID, gson.toJson(new LoadGameMessage(updated)));
-                        broadcast(gameID, gson.toJson(new NotificationMessage(cmd.getPlayerColor() + " moved")));
+                    ChessGame g = game.game();
+                    if (g.getGameOver()) {
+                        send(session, new ErrorMessage("Error: game over"));
+                        return;
                     }
-                }
-
-                case RESIGN -> {
-                    ResignCommand cmd = gson.fromJson(messageJson, ResignCommand.class);
-                    ResignRequest request = new ResignRequest(cmd.getAuthToken(), gameID);
-                    ResignResult result = gameplayService.resign(request);
-
-                    if (result.getMessage() != null && result.getMessage().toLowerCase().contains("error")) {
-                        session.getRemote().sendString(gson.toJson(new ErrorMessage(result.getMessage())));
-                    } else {
-                        broadcast(gameID, gson.toJson(new NotificationMessage("A player has resigned.")));
+                    ChessMove move = cmd.getMove();
+                    if (!g.validMoves(move.getStartPosition()).contains(move)) {
+                        send(session, new ErrorMessage("Error: illegal move"));
+                        return;
                     }
+                    g.makeMove(move);
+                    gameDAO.updateGame(gameID, game);
+                    broadcast(gameID, new LoadGameMessage(g));
+                    broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " moved: " + move));
+                    if (g.isInCheckmate(g.getTeamTurn())) broadcast(gameID, new NotificationMessage(auth.getUsername() + " is in checkmate!"));
+                    else if (g.isInStalemate(g.getTeamTurn())) broadcast(gameID, new NotificationMessage("Game ended in stalemate."));
+                    else if (g.isInCheck(g.getTeamTurn())) broadcast(gameID, new NotificationMessage(auth.getUsername() + " is in check!"));
                 }
-
-                case LEAVE -> {
-                    LeaveCommand cmd = gson.fromJson(messageJson, LeaveCommand.class);
-                    LeaveRequest request = new LeaveRequest(cmd.getAuthToken(), gameID);
-                    LeaveResult result = gameplayService.leave(request);
-
-                    if (result.getMessage() != null && result.getMessage().toLowerCase().contains("error")) {
-                        session.getRemote().sendString(gson.toJson(new ErrorMessage(result.getMessage())));
-                    } else {
-                        broadcast(gameID, gson.toJson(new NotificationMessage("A player left the game.")));
-                        leaveGame(gameID, session);
-                    }
+                case "LEAVE" -> {
+                    broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " left the game."));
+                    leaveGame(gameID, session);
                 }
-
-                default -> session.getRemote().sendString(gson.toJson(new ErrorMessage("Unknown command type")));
+                case "RESIGN" -> {
+                    game.game().setGameOver(true);
+                    gameDAO.updateGame(gameID, game);
+                    broadcast(gameID, new NotificationMessage(auth.getUsername() + " resigned."));
+                }
+                default -> send(session, new ErrorMessage("Error: unknown command"));
             }
         } catch (DataAccessException | IOException e) {
             try {
-                session.getRemote().sendString(gson.toJson(new ErrorMessage("Internal server error: " + e.getMessage())));
+                send(session, new ErrorMessage("Error: " + e.getMessage()));
+            } catch (IOException ignored) {
+            }
+        } catch (InvalidMoveException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void send(Session session, ServerMessage msg) throws IOException {
+        if (session.isOpen()) session.getRemote().sendString(gson.toJson(msg));
+    }
+
+    private void broadcast(int gameID, ServerMessage msg) {
+        for (Session s : gameSessions.getOrDefault(gameID, Set.of())) {
+            try {
+                send(s, msg);
             } catch (IOException ignored) {}
         }
+    }
+
+    private void broadcastExcept(int gameID, Session excluded, ServerMessage msg) {
+        for (Session s : gameSessions.getOrDefault(gameID, Set.of())) {
+            if (!s.equals(excluded)) {
+                try {
+                    send(s, msg);
+                } catch (IOException ignored) {}
+            }
+        }
+    }
+
+    private String notifyConnected(String username, GameData game) {
+        if (username.equals(game.getWhiteUsername())) return username + " connected as white";
+        if (username.equals(game.getBlackUsername())) return username + " connected as black";
+        return username + " joined as observer";
     }
 }
