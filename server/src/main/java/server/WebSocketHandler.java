@@ -97,6 +97,13 @@ public class WebSocketHandler {
                     leaveGame(gameID, session);
                 }
                 case "RESIGN" -> {
+                    // Only white or black player may resign not the observer duh
+                    if (!auth.getUsername().equals(game.getWhiteUsername()) &&
+                            !auth.getUsername().equals(game.getBlackUsername())) {
+                        send(session, new ErrorMessage("Error: only players can resign"));
+                        return;
+                    }
+                    // Mark game as over and send notif
                     game.game().setGameOver(true);
                     gameDAO.updateGame(gameID, game);
                     broadcast(gameID, new NotificationMessage(auth.getUsername() + " resigned."));
