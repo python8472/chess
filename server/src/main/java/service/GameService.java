@@ -75,13 +75,11 @@ public class GameService {
                 game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username, game.game());
             }
             case "OBSERVER" -> {
-                // No state mutation for observers in Phase 5
-                // You might log this later, but for now we just return success
-                return new JoinGameResult(); // still valid
+                return new JoinGameResult();
             }
         }
 
-        // Only persist changes if player slot changed
+        // Save changes only if it’s a player join
         if (!color.equalsIgnoreCase("OBSERVER")) {
             gameDAO.updateGame(request.getGameID(), game);
         }

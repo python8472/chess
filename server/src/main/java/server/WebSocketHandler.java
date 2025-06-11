@@ -97,17 +97,25 @@ public class WebSocketHandler {
                     leaveGame(gameID, session);
                 }
                 case "RESIGN" -> {
-                    // Only white or black player may resign not the observer duh
+                    // Only white or black player may resign
                     if (!auth.getUsername().equals(game.getWhiteUsername()) &&
                             !auth.getUsername().equals(game.getBlackUsername())) {
                         send(session, new ErrorMessage("Error: only players can resign"));
                         return;
                     }
+
+                    // Check if game is done to prevent more resigning
+                    if (game.game().getGameOver()) {
+                        send(session, new ErrorMessage("Error: game already over"));
+                        return;
+                    }
+
                     // Mark game as over and send notif
                     game.game().setGameOver(true);
                     gameDAO.updateGame(gameID, game);
                     broadcast(gameID, new NotificationMessage(auth.getUsername() + " resigned."));
                 }
+
                 default -> send(session, new ErrorMessage("Error: unknown command"));
             }
         } catch (DataAccessException | IOException e) {
