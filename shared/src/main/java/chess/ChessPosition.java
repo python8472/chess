@@ -56,4 +56,21 @@ public class ChessPosition {
     public int getColumn() {
         return pieceCol; //return col
     }
+
+    public static ChessPosition fromAlgebraic(String notation) {
+        if (notation == null || notation.length() != 2) {
+            throw new IllegalArgumentException("Invalid algebraic notation: " + notation);
+        }
+        char file = notation.charAt(0);
+        char rank = notation.charAt(1);
+
+        if (file < 'a' || file > 'h' || rank < '1' || rank > '8') {
+            throw new IllegalArgumentException("Invalid position: " + notation);
+        }
+
+        int col = file - 'a' + 1;
+        int row = Character.getNumericValue(rank);
+        return new ChessPosition(row, col);
+    }
+
 }

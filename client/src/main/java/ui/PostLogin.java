@@ -4,6 +4,7 @@ import facade.ServerFacade;
 import request.*;
 import result.*;
 import model.*;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,7 +14,7 @@ public class PostLogin {
     private final String username;
     private final String authToken;
 
-    private List<GameData> cachedGames = List.of();  // updated on each list cal
+    private List<GameData> cachedGames = List.of();  // updated on each list call
 
     public PostLogin(String username, String authToken) {
         this.username = username;
@@ -27,13 +28,12 @@ public class PostLogin {
                 EscapeSequences.RESET_TEXT_BOLD_FAINT);
         HelpHelper.printPostLoginHelp();
 
-
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE +
                     "(" + username + ") > " +
                     EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {continue;}
+            if (input.isEmpty()) continue;
 
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
@@ -76,8 +76,9 @@ public class PostLogin {
                 }
             }
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to list games: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Failed to list games: " + result.getMessage() +
+                    EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -107,20 +108,22 @@ public class PostLogin {
         int gameID = cachedGames.get(index).getGameID();
         String playerColor = tokens[2].toUpperCase();
         if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: color must be WHITE or BLACK." +
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Error: color must be WHITE or BLACK." +
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
 
-        JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
-        JoinGameResult result = facade.joinGame(request, authToken);
+        JoinGameResult result = facade.joinGame(new JoinGameRequest(playerColor, gameID), authToken);
         if (result.getMessage() == null) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Joined game " +
-                    (index + 1) + " as " + playerColor + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
+                    "Joined game " + (index + 1) + " as " + playerColor +
+                    EscapeSequences.RESET_TEXT_COLOR);
             new Gameplay(username, authToken, gameID, playerColor).run();
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Failed to join game: " + result.getMessage() +
+                    EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -135,11 +138,11 @@ public class PostLogin {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
-                    "Error: game number must be an integer, use 'list' to see available games." +
+                    "Error: game number must be an integer. Use 'list' to see available games." +
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
-        //catch when someone puts number that does not exist
+
         if (index < 0 || index >= cachedGames.size()) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
                     "Error: invalid game number. Use 'list' to see available games." +
@@ -148,20 +151,19 @@ public class PostLogin {
         }
 
         int gameID = cachedGames.get(index).getGameID();
-        JoinGameRequest request = new JoinGameRequest("OBSERVER", gameID);
-        JoinGameResult result = facade.joinGame(request, authToken);
+        JoinGameResult result = facade.joinGame(new JoinGameRequest("OBSERVER", gameID), authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
                     "Observing game " + (index + 1) + EscapeSequences.RESET_TEXT_COLOR);
             new Gameplay(username, authToken, gameID, "OBSERVER").run();
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Failed to observe game: " + result.getMessage() +
+                    EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
     private void handleCreate(String[] tokens) throws Exception {
-
         if (tokens.length < 2) {
             System.out.println("Usage: create <game-name>");
             return;
@@ -171,22 +173,24 @@ public class PostLogin {
         CreateGameResult result = facade.createGame(new CreateGameRequest(name), authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
-                    "Game created" + EscapeSequences.RESET_TEXT_COLOR);
+                    "Game created." + EscapeSequences.RESET_TEXT_COLOR);
             handleList();
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to create game: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Failed to create game: " + result.getMessage() +
+                    EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
     private void logout() throws Exception {
-        var result = facade.logout(new LogoutRequest(authToken), authToken);
+        LogoutResult result = facade.logout(new LogoutRequest(authToken), authToken);
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
                     "Logged out successfully." + EscapeSequences.RESET_TEXT_COLOR);
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Logout failed: " +
-                    result.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Logout failed: " + result.getMessage() +
+                    EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 }

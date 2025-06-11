@@ -15,20 +15,20 @@ import java.util.function.Consumer;
 @ClientEndpoint
 public class GameSocketClient {
 
-    private final Consumer<ServerMessage> serverUrl;
+    private final String serverUrl;
+    private final Consumer<ServerMessage> messageHandler;
     private Session session;
     private final Gson gson = new Gson();
 
-    public GameSocketClient(Consumer<ServerMessage> serverUrl) {
+    public GameSocketClient(String serverUrl, Consumer<ServerMessage> messageHandler) {
         this.serverUrl = serverUrl;
+        this.messageHandler = messageHandler;
     }
 
     public void connect(String authToken, int gameID) throws Exception {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        container.connectToServer(this, URI.create(serverUrl + "/connect?authToken=" + authToken + "&gameID=" + gameID));
-
-        // Send CONNECT command after establishing session
-        sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
+        container.connectToServer(this, URI.create(serverUrl + "/ws?gameID=" + gameID));
+        sendCommand(new ConnectCommand(authToken, gameID));
     }
 
     public void sendMove(String authToken, int gameID, ChessGame.TeamColor color, ChessMove move) {
@@ -68,9 +68,7 @@ public class GameSocketClient {
     @OnMessage
     public void onMessage(String messageJson) {
         ServerMessage message = gson.fromJson(messageJson, ServerMessage.class);
-        System.out.println("[Server Message] " + messageJson);
-
-        // TODO: Route by message.getServerMessageType() if needed
+        messageHandler.accept(message);
     }
 
     @OnClose
