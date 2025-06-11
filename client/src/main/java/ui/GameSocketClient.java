@@ -26,9 +26,21 @@ public class GameSocketClient {
     }
 
     public void connect(String authToken, int gameID) throws Exception {
+        String fullUri = serverUrl + "?authToken=" + authToken + "&gameID=" + gameID;
+        System.out.println("[DEBUG] Connecting to WebSocket URI: " + fullUri);
+
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        container.connectToServer(this, URI.create(serverUrl + "/ws?gameID=" + gameID));
-        sendCommand(new ConnectCommand(authToken, gameID));
+
+        try {
+            container.connectToServer(this, URI.create(fullUri));
+            System.out.println("[DEBUG] WebSocket container connected successfully.");
+        } catch (Exception e) {
+            System.err.println("[ERROR] WebSocket handshake failed:");
+            e.printStackTrace();
+            throw e;
+        }
+
+        // Optional: wait for @OnOpen to confirm
     }
 
     public void sendMove(String authToken, int gameID, ChessGame.TeamColor color, ChessMove move) {

@@ -13,6 +13,7 @@ import websocket.WebSocketHandler;
 public class Server {
 
     private ClearService clearService; // used for testing purpoes only
+
     public static void main(String[] args) {
         new Server().run(8080);
     }
