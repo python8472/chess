@@ -1,7 +1,7 @@
 package ui;
 
 import chess.*;
-import websocket.commands.*;
+import com.google.gson.Gson;
 import websocket.messages.*;
 
 import java.util.Scanner;
@@ -14,6 +14,7 @@ public class Gameplay {
     private ChessBoard currentBoard = new ChessBoard();
     private final ChessGame.TeamColor pov;
     private final GameSocketClient socketClient;
+    private final Gson gson = new Gson();  // ADDED
 
     public Gameplay(String username, String authToken, int gameID, String color) {
         this.playerColor = color;
@@ -52,7 +53,7 @@ public class Gameplay {
                     case "redraw" -> drawInitialBoard();
                     case "highlight" -> {
                         if (tokens.length != 2) {
-                            System.out.println("Usage: highlight <pos>");
+                            System.out.println("Usage: highlight <square>");
                             break;
                         }
                         ChessPosition pos = ChessPosition.fromAlgebraic(tokens[1]);
@@ -60,12 +61,16 @@ public class Gameplay {
                     }
                     case "move" -> {
                         if (tokens.length < 3) {
-                            System.out.println("Usage: move <start> <end>");
+                            System.out.println("Usage: move <start> <end> [promo]");
                             break;
                         }
                         ChessPosition start = ChessPosition.fromAlgebraic(tokens[1]);
                         ChessPosition end = ChessPosition.fromAlgebraic(tokens[2]);
-                        ChessMove move = new ChessMove(start, end, null); // Add promotion support if needed
+                        ChessPiece.PieceType promo = null;
+                        if (tokens.length == 4) {
+                            promo = ChessPiece.PieceType.valueOf(tokens[3].toUpperCase());
+                        }
+                        ChessMove move = new ChessMove(start, end, promo);
                         socketClient.sendMove(authToken, gameID, pov, move);
                     }
                     case "resign" -> socketClient.sendResign(authToken, gameID);
@@ -90,18 +95,23 @@ public class Gameplay {
     private void handleServerMessage(ServerMessage msg) {
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {
-                ChessGame game = ((LoadGameMessage) msg).getGame();
-                this.currentBoard = game.getBoard();
-                drawInitialBoard();
+                LoadGameMessage load = (LoadGameMessage) msg;
+                if (load.getGame() == null) {
+                    System.out.println("[ERROR] Received null game from server.");
+                } else {
+                    currentBoard = load.getGame().getBoard();
+                    drawInitialBoard();
+                }
             }
             case NOTIFICATION -> {
-                String note = ((NotificationMessage) msg).getMessage();
-                System.out.println("[Notice] " + note);
+                NotificationMessage note = (NotificationMessage) msg;
+                System.out.println("[Notice] " + note.getMessage());
             }
             case ERROR -> {
-                String error = ((ErrorMessage) msg).getErrorMessage();
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + error + EscapeSequences.RESET_TEXT_COLOR);
+                ErrorMessage err = (ErrorMessage) msg;
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + err.getErrorMessage() + EscapeSequences.RESET_TEXT_COLOR);
             }
         }
     }
+
 }

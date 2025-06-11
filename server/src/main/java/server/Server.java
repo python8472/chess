@@ -8,7 +8,7 @@ import dataaccess.sql.SQLGameDAO;
 import model.GameData;
 import service.*;
 import spark.Spark;
-import websocket.WebSocketHandler;
+import server.WebSocketHandler;
 
 public class Server {
 
@@ -20,38 +20,36 @@ public class Server {
 
     public int run(int desiredPort) {
         try {
-            DatabaseManager.configureDatabase();  // make DB and fail if fail
+            DatabaseManager.configureDatabase();
         } catch (Exception e) {
             System.err.println("DB Fail: " + e.getMessage());
             return -1;
         }
 
         Spark.port(desiredPort);
-        Spark.webSocket("/ws", GameWebSocket.class);
         Spark.staticFiles.location("web");
 
-        // shared DAO instances
+        // DAO + Service setup
         UserDAO userDAO = new SQLUserDAO();
         AuthDAO authDAO = new SQLAuthDAO();
         GameDAO gameDAO = new SQLGameDAO();
 
-        // service instances
         UserService userService = new UserService(userDAO, authDAO);
         LoginService loginService = new LoginService(userDAO, authDAO);
         LogoutService logoutService = new LogoutService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        clearService = new ClearService(userDAO, authDAO, gameDAO); // save to field
+        clearService = new ClearService(userDAO, authDAO, gameDAO);
+        GameplayService gameplayService = new GameplayService(gameDAO, authDAO);
 
-        // handlers
         UserHandler userHandler = new UserHandler(userService, loginService, logoutService);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
-        GameplayService gameplayService = new GameplayService(gameDAO, authDAO);
         GameplayHandler gameplayHandler = new GameplayHandler(gameplayService);
         WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO, gameplayService);
         GameWebSocket.setHandler(wsHandler);
+        Spark.webSocket("/ws", GameWebSocket.class);
 
-        // routes
+        // Routes
         Spark.post("/user", userHandler.handleRegister);
         Spark.post("/session", userHandler.handleLogin);
         Spark.delete("/session", userHandler.handleLogout);

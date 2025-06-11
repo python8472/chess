@@ -15,7 +15,7 @@ public class ChessBoard {
     private final ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
-
+        // resetBoard();
     }
 
     /**
@@ -67,6 +67,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         // Clear the board
+        System.out.println("[DEBUG] Board was reset");
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 squares[row][col] = null;

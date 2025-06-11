@@ -20,8 +20,12 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException("Game name cannot be null or empty");
         }
 
+        ChessGame newGame = new ChessGame();
+        newGame.getBoard().resetBoard();
+        newGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        String gameJson = gson.toJson(newGame);
+
         String sql = "INSERT INTO games (gameName, game) VALUES (?, ?)";
-        String gameJson = gson.toJson(new ChessGame());
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

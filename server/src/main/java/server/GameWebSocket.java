@@ -3,7 +3,7 @@ package server;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import websocket.WebSocketHandler;
+import server.WebSocketHandler;
 import websocket.commands.UserGameCommand;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

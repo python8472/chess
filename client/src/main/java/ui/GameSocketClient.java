@@ -5,6 +5,9 @@ import chess.ChessPosition;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import websocket.commands.*;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -16,13 +19,13 @@ import java.util.function.Consumer;
 public class GameSocketClient {
 
     private final String serverUrl;
-    private final Consumer<ServerMessage> messageHandler;
     private Session session;
     private final Gson gson = new Gson();
+    private final Consumer<ServerMessage> handler;
 
-    public GameSocketClient(String serverUrl, Consumer<ServerMessage> messageHandler) {
+    public GameSocketClient(String serverUrl, Consumer<ServerMessage> handler) {
         this.serverUrl = serverUrl;
-        this.messageHandler = messageHandler;
+        this.handler = handler;
     }
 
     public void connect(String authToken, int gameID) throws Exception {
@@ -78,9 +81,17 @@ public class GameSocketClient {
     }
 
     @OnMessage
-    public void onMessage(String messageJson) {
-        ServerMessage message = gson.fromJson(messageJson, ServerMessage.class);
-        messageHandler.accept(message);
+    public void onMessage(String message, Session session) {
+        try {
+            ServerMessage base = gson.fromJson(message, ServerMessage.class);
+            switch (base.getServerMessageType()) {
+                case LOAD_GAME -> handler.accept(gson.fromJson(message, LoadGameMessage.class));
+                case NOTIFICATION -> handler.accept(gson.fromJson(message, NotificationMessage.class));
+                case ERROR -> handler.accept(gson.fromJson(message, ErrorMessage.class));
+            }
+        } catch (Exception e) {
+            System.out.println("[WebSocket] Message handling error: " + e.getMessage());
+        }
     }
 
     @OnClose
