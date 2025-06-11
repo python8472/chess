@@ -97,11 +97,22 @@ public class GameplayService {
             }
 
             String username = auth.getUsername();
-            if (username.equals(gameData.getWhiteUsername())) {
-                gameData = new GameData(gameData.getGameID(), gameData.getGameName(), null, gameData.getBlackUsername(), gameData.game());
-            } else if (username.equals(gameData.getBlackUsername())) {
-                gameData = new GameData(gameData.getGameID(), gameData.getGameName(), gameData.getWhiteUsername(), null, gameData.game());
+            String white = gameData.getWhiteUsername();
+            String black = gameData.getBlackUsername();
+
+            if (username.equals(white)) {
+                white = null;
+            } else if (username.equals(black)) {
+                black = null;
             }
+
+            gameData = new GameData(
+                    gameData.getGameID(),
+                    gameData.getGameName(),
+                    white,
+                    black,
+                    gameData.game()
+            );
 
             gameDAO.updateGame(request.gameID(), gameData);
             return new LeaveResult();
@@ -110,5 +121,6 @@ public class GameplayService {
             return new LeaveResult("Error: " + e.getMessage());
         }
     }
+
 
 }

@@ -76,10 +76,10 @@ public class GameHandler {
                 String msg = result.getMessage().toLowerCase();
                 if (msg.contains("unauthorized")) {
                     res.status(401);
-                } else if (msg.contains("already joined") || msg.contains("already taken")) {
-                    res.status(403); // Slot conflict
+                } else if (msg.contains("already joined")) {
+                    res.status(403);
                 } else {
-                    res.status(400); // Generic failure
+                    res.status(400);
                 }
             } else {
                 res.status(200);
