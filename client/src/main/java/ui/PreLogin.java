@@ -10,6 +10,7 @@ public class PreLogin {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade = new ServerFacade("http://localhost:8080");
 
+
     public void run() {
         System.out.println(EscapeSequences.ERASE_SCREEN +
                 EscapeSequences.SET_TEXT_BOLD +
