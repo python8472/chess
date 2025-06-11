@@ -64,7 +64,7 @@ public class WebSocketHandler {
             switch (commandType) {
                 case "CONNECT" -> {
                     send(session, new LoadGameMessage(game.game()));
-                    broadcast(gameID, new NotificationMessage(notifyConnected(auth.getUsername(), game)));
+                    broadcastExcept(gameID, session, new NotificationMessage(notifyConnected(auth.getUsername(), game)));
                 }
                 case "MAKE_MOVE" -> {
                     MakeMoveCommand cmd = gson.fromJson(messageJson, MakeMoveCommand.class);
@@ -74,6 +74,12 @@ public class WebSocketHandler {
                         return;
                     }
                     ChessMove move = cmd.getMove();
+                    // Check that it's the user's turn
+                    if (g.getTeamTurn() == ChessGame.TeamColor.WHITE && !auth.getUsername().equals(game.getWhiteUsername())
+                            || g.getTeamTurn() == ChessGame.TeamColor.BLACK && !auth.getUsername().equals(game.getBlackUsername())) {
+                        send(session, new ErrorMessage("Error: not your turn"));
+                        return;
+                    }
                     if (!g.validMoves(move.getStartPosition()).contains(move)) {
                         send(session, new ErrorMessage("Error: illegal move"));
                         return;
