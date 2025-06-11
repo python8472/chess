@@ -78,17 +78,27 @@ public class SQLGameDAO implements GameDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, gameData.getWhiteUsername());
-            stmt.setString(2, gameData.getBlackUsername());
+            if (gameData.getWhiteUsername() != null && !gameData.getWhiteUsername().isBlank()) {
+                stmt.setString(1, gameData.getWhiteUsername());
+            } else {
+                stmt.setNull(1, Types.VARCHAR);
+            }
+
+            if (gameData.getBlackUsername() != null && !gameData.getBlackUsername().isBlank()) {
+                stmt.setString(2, gameData.getBlackUsername());
+            } else {
+                stmt.setNull(2, Types.VARCHAR);
+            }
+
             stmt.setString(3, gameJson);
             stmt.setInt(4, gameData.getGameID());
+
             stmt.executeUpdate();
 
         } catch (SQLException e) {
             throw new DataAccessException("updateGame failed", e);
         }
     }
-
 
     @Override
     public List<GameData> listGames() throws DataAccessException {

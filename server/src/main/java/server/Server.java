@@ -47,7 +47,7 @@ public class Server {
         ClearHandler clearHandler = new ClearHandler(clearService);
         GameplayService gameplayService = new GameplayService(gameDAO, authDAO);
         GameplayHandler gameplayHandler = new GameplayHandler(gameplayService);
-        WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO);
+        WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO, gameplayService);
         GameWebSocket.setHandler(wsHandler);
 
         // routes

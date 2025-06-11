@@ -10,6 +10,9 @@ import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import request.LeaveRequest;
+import result.LeaveResult;
+import service.GameplayService;
 import websocket.commands.*;
 import websocket.messages.*;
 import com.google.gson.Gson;
@@ -23,14 +26,17 @@ public class WebSocketHandler {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
     private final Gson gson = new Gson();
+    private final GameplayService gameplayService;
+
 
     // gameID -> list of sessions
     private final Map<Integer, Set<Session>> gameSessions = new ConcurrentHashMap<>();
     private final Map<Session, String> sessionToUsername = new ConcurrentHashMap<>();
 
-    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
+    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO, GameplayService gameplayService) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
+        this.gameplayService = gameplayService;
     }
 
     public void joinGame(int gameID, Session session) {
@@ -93,9 +99,19 @@ public class WebSocketHandler {
                     else if (g.isInCheck(g.getTeamTurn())) broadcast(gameID, new NotificationMessage(auth.getUsername() + " is in check!"));
                 }
                 case "LEAVE" -> {
-                    broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " left the game."));
+                    // Remove session from WebSocket memory
                     leaveGame(gameID, session);
+
+                    // Actually clear the DB slot
+                    LeaveRequest leaveRequest = new LeaveRequest(authToken, gameID);
+                    LeaveResult leaveResult = gameplayService.leave(leaveRequest);
+                    if (leaveResult.getMessage() != null) {
+                        send(session, new ErrorMessage("Leave failed: " + leaveResult.getMessage()));
+                    } else {
+                        broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " left the game."));
+                    }
                 }
+
                 case "RESIGN" -> {
                     // Only white or black player may resign
                     if (!auth.getUsername().equals(game.getWhiteUsername()) &&

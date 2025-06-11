@@ -43,19 +43,24 @@ public class GameService {
     }
 
     public JoinGameResult joinGame(String authToken, JoinGameRequest request) throws DataAccessException {
+        // Validate auth token
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
             return new JoinGameResult("Error: unauthorized");
         }
 
+        // Validate request object and game ID
         Integer gameID = request.getGameID();
-        GameData game = (gameID == null) ? null : gameDAO.getGame(gameID);
-        if (game == null) {
+        String color = request.getPlayerColor();
+
+        if (gameID == null || color == null ||
+                (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK") && !color.equalsIgnoreCase("OBSERVER"))) {
             return new JoinGameResult("Error: bad request");
         }
 
-        String color = request.getPlayerColor();
-        if (color == null || (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK") && !color.equalsIgnoreCase("OBSERVER"))) {
+        // Always get fresh GameData from DB
+        GameData game = gameDAO.getGame(gameID);
+        if (game == null) {
             return new JoinGameResult("Error: bad request");
         }
 
@@ -67,34 +72,22 @@ public class GameService {
                 if (curr != null && !curr.isBlank()) {
                     return new JoinGameResult("Error: white player already joined");
                 }
-                game = new GameData(
-                        game.getGameID(),
-                        game.getGameName(),
-                        username,
-                        game.getBlackUsername(),
-                        game.game());
+                game = new GameData(game.getGameID(), game.getGameName(), username, game.getBlackUsername(), game.game());
             }
             case "BLACK" -> {
                 String curr = game.getBlackUsername();
                 if (curr != null && !curr.isBlank()) {
                     return new JoinGameResult("Error: black player already joined");
                 }
-                game = new GameData(
-                        game.getGameID(),
-                        game.getGameName(),
-                        game.getWhiteUsername(),
-                        username,
-                        game.game());
+                game = new GameData(game.getGameID(), game.getGameName(), game.getWhiteUsername(), username, game.game());
             }
             case "OBSERVER" -> {
-                return new JoinGameResult();
+                return new JoinGameResult(); // No updates needed for observers
             }
         }
 
-        if (!color.equalsIgnoreCase("OBSERVER")) {
-            gameDAO.updateGame(game);
-        }
-
+        // Only update game if a player joined
+        gameDAO.updateGame(game);
         return new JoinGameResult();
     }
 
