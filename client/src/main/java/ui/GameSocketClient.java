@@ -5,10 +5,7 @@ import chess.ChessPosition;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import websocket.commands.*;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -61,7 +58,6 @@ public class GameSocketClient {
         HighlightMovesCommand command = new HighlightMovesCommand(authToken, gameID, pos);
         String json = gson.toJson(command);
         session.getAsyncRemote().sendText(json);
-        System.out.println("[DEBUG] HighlightMovesCommand JSON: " + json);
     }
 
 
@@ -91,6 +87,7 @@ public class GameSocketClient {
                 case LOAD_GAME -> handler.accept(gson.fromJson(message, LoadGameMessage.class));
                 case NOTIFICATION -> handler.accept(gson.fromJson(message, NotificationMessage.class));
                 case ERROR -> handler.accept(gson.fromJson(message, ErrorMessage.class));
+                case HIGHLIGHT -> handler.accept(gson.fromJson(message, HighlightMessage.class));
             }
         } catch (Exception e) {
             System.out.println("[WebSocket] Message handling error: " + e.getMessage());

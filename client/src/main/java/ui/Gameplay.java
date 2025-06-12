@@ -1,10 +1,7 @@
 package ui;
 
 import chess.*;
-import com.google.gson.Gson;
 import websocket.messages.*;
-
-import java.util.Collection;
 import java.util.Scanner;
 
 public class Gameplay {
@@ -14,7 +11,6 @@ public class Gameplay {
     private ChessBoard currentBoard = new ChessBoard();
     private final ChessGame.TeamColor pov;
     private final GameSocketClient socketClient;
-    private final Gson gson = new Gson();  // ADDED
 
     public Gameplay(String username, String authToken, int gameID, String color) {
         this.authToken = authToken;
@@ -30,14 +26,6 @@ public class Gameplay {
         } catch (Exception e) {
             System.out.println("Error: connection failed " + e.getMessage());
             return;
-        }
-
-        // Wait for LOAD_GAME before continuing
-
-        while (currentBoard == null || currentBoard.getPiece(new ChessPosition(1, 1)) == null) {
-            try {
-                Thread.sleep(50); // Wait for board to be set from server message
-            } catch (InterruptedException ignored) {}
         }
 
         // Main input loop
@@ -92,7 +80,7 @@ public class Gameplay {
 
 
     private void drawInitialBoard() {
-        BoardDisplay.displayBoard(currentBoard, pov);
+        BoardDisplay.displayBoard(currentBoard, pov, null);
     }
 
     private void handleServerMessage(ServerMessage msg) {
@@ -112,6 +100,7 @@ public class Gameplay {
                 HighlightMessage highlightMsg = (HighlightMessage) msg;
                 BoardDisplay.displayBoard(currentBoard, pov, highlightMsg.getHighlights());
             }
+
 
             case NOTIFICATION -> {
                 NotificationMessage note = (NotificationMessage) msg;

@@ -8,10 +8,6 @@ import static ui.EscapeSequences.EMPTY;
 
 public class BoardDisplay {
 
-    public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov) {
-        displayBoard(board, pov, null); // no highlights
-    }
-
     public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov, Collection<ChessPosition> highlights) {
 
         int[] rows = (pov == ChessGame.TeamColor.WHITE)
@@ -35,6 +31,11 @@ public class BoardDisplay {
                         ? ((row + colIndex) % 2 == 0)
                         : ((row + (7 - colIndex)) % 2 == 0);
 
+                // 🧠 DEBUG highlight check
+                if (highlights != null && isHighlighted) {
+                    System.out.println("Highlighting square: " + colChar + row);
+                }
+
                 System.out.print(getSymbolWithBackground(piece, isLight, isHighlighted));
             }
             System.out.println(EscapeSequences.SET_TEXT_BOLD + " " + row + EscapeSequences.RESET_TEXT_BOLD_FAINT);
@@ -55,7 +56,6 @@ public class BoardDisplay {
                 ? EscapeSequences.SET_BG_COLOR_YELLOW
                 : (isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY);
 
-        // 5-wide fixed cell
         String content;
         if (piece == null) {
             content = EMPTY + EMPTY + EMPTY;  // 5 spaces

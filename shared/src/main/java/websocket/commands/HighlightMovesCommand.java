@@ -6,7 +6,7 @@ public class HighlightMovesCommand extends UserGameCommand {
     private final ChessPosition position;
 
     public HighlightMovesCommand(String authToken, int gameID, ChessPosition position) {
-        super(CommandType.HIGHLIGHT, authToken, gameID);
+        super(CommandType.HIGHLIGHT_MOVES, authToken, gameID);
         this.position = position;
     }
 
