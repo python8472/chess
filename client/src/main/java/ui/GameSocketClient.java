@@ -95,8 +95,8 @@ public class GameSocketClient {
     }
 
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.err.println("[WebSocket] Error: " + throwable.getMessage());
-    }
+//    @OnError
+//    public void onError(Session session, Throwable throwable) {
+//        System.err.println("[WebSocket] Error: " + throwable.getMessage());
+//    }
 }
