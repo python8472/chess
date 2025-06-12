@@ -18,25 +18,19 @@ public class Gameplay {
         this.authToken = authToken;
         this.gameID = gameID;
         this.pov = (color == null || color.equalsIgnoreCase("BLACK")) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
-        this.socketClient = new GameSocketClient("ws://localhost:8080/ws", this::handleServerMessage);
-    }
-
+        this.socketClient = new GameSocketClient("ws://localhost:8080/ws", this::handleServerMessage);}
     public void run() {
         try {
             socketClient.connect(authToken, gameID);
         } catch (Exception e) {
             System.out.println("Error: connection failed " + e.getMessage());
-            return;
-        }
-
+            return;}
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "(gameplay) > " + EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
             if (input.isEmpty()) {continue;}
-
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
-
             try {
                 handleCommand(command, tokens);
             } catch (Exception e) {
@@ -50,7 +44,15 @@ public class Gameplay {
             case "redraw" -> drawInitialBoard();
             case "highlight" -> handleHighlight(tokens);
             case "move" -> handleMove(tokens);
-            case "resign" -> socketClient.sendResign(authToken, gameID);
+            case "resign" -> {
+                System.out.print("Are you sure you want to resign? (yes/no): ");
+                String response = scanner.nextLine().trim().toLowerCase();
+                if (response.equals("yes")) {
+                    socketClient.sendResign(authToken, gameID);
+                } else {
+                    System.out.println("Resignation cancelled.");
+                }
+            }
             case "leave" -> {
                 socketClient.sendLeave(authToken, gameID);
                 System.out.println("Leaving game...");
