@@ -94,10 +94,6 @@ public class GameSocketClient {
         }
     }
 
-    @OnClose
-    public void onClose(Session session, CloseReason reason) {
-        System.out.println("[WebSocket] Connection closed: " + reason);
-    }
 
     @OnError
     public void onError(Session session, Throwable throwable) {

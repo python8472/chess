@@ -191,6 +191,7 @@ public class PostLogin {
         if (result.getMessage() == null) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN +
                     "Logged out successfully." + EscapeSequences.RESET_TEXT_COLOR);
+            new PreLogin().run();
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
                     "Logout failed: " + result.getMessage() +

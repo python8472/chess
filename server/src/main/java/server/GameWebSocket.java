@@ -10,9 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebSocket
 public class GameWebSocket {
 
-    private static final Gson gSon = new Gson();
+    private static final Gson GSON = new Gson();
     private static WebSocketHandler handler;
-    private static final Map<Session, Integer> sessionToGameID = new ConcurrentHashMap<>();
+    private static final Map<Session, Integer> SESSION_TO_GAME_ID  = new ConcurrentHashMap<>();
 
     public static void setHandler(WebSocketHandler h) {
         handler = h;
@@ -27,11 +27,11 @@ public class GameWebSocket {
     public void onMessage(Session session, String message) {
         try {
             // Deserialize the message to extract game ID and auth token
-            UserGameCommand command = gSon.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = GSON.fromJson(message, UserGameCommand.class);
             int gameID = command.getGameID();
 
             // Save session to game ID mapping if not already done
-            sessionToGameID.putIfAbsent(session, gameID);
+            SESSION_TO_GAME_ID .putIfAbsent(session, gameID);
 
             // Register session and handle the command
             handler.joinGame(gameID, session);
@@ -41,7 +41,7 @@ public class GameWebSocket {
             e.printStackTrace();
             try {
                 session.getRemote().sendString(
-                        gSon.toJson(new websocket.messages.ErrorMessage("Error: Invalid message format."))
+                        GSON.toJson(new websocket.messages.ErrorMessage("Error: Invalid message format."))
                 );
             } catch (Exception ignored) {
             }
@@ -50,10 +50,10 @@ public class GameWebSocket {
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        Integer gameID = sessionToGameID.get(session);
+        Integer gameID = SESSION_TO_GAME_ID .get(session);
         if (gameID != null) {
             handler.leaveGame(gameID, session);
         }
-        sessionToGameID.remove(session);
+        SESSION_TO_GAME_ID .remove(session);
     }
 }
