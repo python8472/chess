@@ -3,6 +3,8 @@ package ui;
 import chess.*;
 import com.google.gson.Gson;
 import websocket.messages.*;
+
+import java.util.Collection;
 import java.util.Scanner;
 
 public class Gameplay {
@@ -105,6 +107,12 @@ public class Gameplay {
                     drawInitialBoard();
                 }
             }
+
+            case HIGHLIGHT -> {
+                HighlightMessage highlightMsg = (HighlightMessage) msg;
+                BoardDisplay.displayBoard(currentBoard, pov, highlightMsg.getHighlights());
+            }
+
             case NOTIFICATION -> {
                 NotificationMessage note = (NotificationMessage) msg;
                 System.out.println("[Notice] " + note.getMessage());

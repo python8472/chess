@@ -57,9 +57,13 @@ public class GameSocketClient {
         sendCommand(new LeaveCommand(authToken, gameID));
     }
 
-    public void sendHighlight(String authToken, int gameID, ChessPosition position) {
-        sendCommand(new HighlightMovesCommand(authToken, gameID, position));
+    public void sendHighlight(String authToken, int gameID, ChessPosition pos) {
+        HighlightMovesCommand command = new HighlightMovesCommand(authToken, gameID, pos);
+        String json = gson.toJson(command);
+        session.getAsyncRemote().sendText(json);
+        System.out.println("[DEBUG] HighlightMovesCommand JSON: " + json);
     }
+
 
     private void sendCommand(UserGameCommand command) {
         if (session != null && session.isOpen()) {

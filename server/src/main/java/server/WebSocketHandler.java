@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
+import com.google.gson.JsonObject;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -20,6 +21,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
@@ -48,9 +50,9 @@ public class WebSocketHandler {
 
     public void receiveMessage(String messageJson, int gameID, Session session) {
         try {
-            UserGameCommand base = gson.fromJson(messageJson, UserGameCommand.class);
-            String authToken = base.getAuthToken();
-            String commandType = base.getCommandType().name();
+            JsonObject jsonObj = gson.fromJson(messageJson, JsonObject.class);
+            String commandType = jsonObj.get("commandType").getAsString();
+            String authToken = jsonObj.get("authToken").getAsString();
 
             AuthData auth = authDAO.getAuth(authToken);
             if (auth == null) {
@@ -113,11 +115,16 @@ public class WebSocketHandler {
 
                 case "HIGHLIGHT_MOVES" -> {
                     HighlightMovesCommand cmd = gson.fromJson(messageJson, HighlightMovesCommand.class);
-                    ChessGame g = game.game();
                     ChessPosition pos = cmd.getPosition();
-                    Collection<ChessMove> moves = g.validMoves(pos);
-                    send(session, new NotificationMessage("Legal moves from " + pos.toString() + ": " + moves));
+                    if (pos == null) {
+                        send(session, new ErrorMessage("Invalid position for highlight."));
+                        return;
+                    }
+                    Collection<ChessMove> moves = game.game().validMoves(pos);
+                    Set<ChessPosition> targets = moves.stream().map(ChessMove::getEndPosition).collect(Collectors.toSet());
+                    send(session, new HighlightMessage(targets));
                 }
+
 
                 case "LEAVE" -> {
                     leaveGame(gameID, session);
