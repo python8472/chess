@@ -26,7 +26,8 @@ public class HelpHelper {
         System.out.println(SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "Available commands:" + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
         System.out.println(SET_TEXT_COLOR_GREEN + "  help" + RESET_TEXT_COLOR + "                            Show helpful commands");
         System.out.println(SET_TEXT_COLOR_GREEN + "  move" + RESET_TEXT_COLOR + " <from> <to> [promo]        Make a move (e.g., move e2 e4)");
-        System.out.println(SET_TEXT_COLOR_GREEN + "  highlight" + RESET_TEXT_COLOR + " <square>               Highlight legal moves from a square (e.g., highlight b1)");
+        System.out.println(SET_TEXT_COLOR_GREEN + "  highlight" + RESET_TEXT_COLOR + " <square>              " +
+                "Highlight legal moves from a square (e.g., highlight b1)");
         System.out.println(SET_TEXT_COLOR_GREEN + "  resign" + RESET_TEXT_COLOR + "                          Resign from the game");
         System.out.println(SET_TEXT_COLOR_GREEN + "  redraw" + RESET_TEXT_COLOR + "                          Redraw the board if needed");
         System.out.println(SET_TEXT_COLOR_GREEN + "  leave" + RESET_TEXT_COLOR + "                           Leave the game");

@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ServerUtils {
-    private static final Gson gson = new Gson();
+    private static final Gson gSon = new Gson();
     private static final String SERVER_URL = "http://localhost:8080"; // Change if needed
 
     public static HttpURLConnection makeRequest(String method, String path, String authToken) throws IOException {
@@ -26,7 +26,7 @@ public class ServerUtils {
 
     public static void sendRequestBody(HttpURLConnection connection, Object requestObj) throws IOException {
         try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = gson.toJson(requestObj).getBytes();
+            byte[] input = gSon.toJson(requestObj).getBytes();
             os.write(input);
         }
     }
@@ -42,7 +42,7 @@ public class ServerUtils {
             while ((line = reader.readLine()) != null) {
                 responseJson.append(line);
             }
-            return gson.fromJson(responseJson.toString(), responseClass);
+            return gSon.fromJson(responseJson.toString(), responseClass);
         }
     }
 }

@@ -21,14 +21,12 @@ public class Gameplay {
 
     public void run() {
         try {
-
             socketClient.connect(authToken, gameID);
         } catch (Exception e) {
             System.out.println("Error: connection failed " + e.getMessage());
             return;
         }
 
-        // Main input loop
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "(gameplay) > " + EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
@@ -38,51 +36,55 @@ public class Gameplay {
             String command = tokens[0].toLowerCase();
 
             try {
-                switch (command) {
-                    case "help" -> HelpHelper.printGameplayHelp();
-                    case "redraw" -> drawInitialBoard();
-                    case "highlight" -> {
-                        if (tokens.length != 2) {
-                            System.out.println("Usage: highlight <square>");
-                            break;
-                        }
-                        ChessPosition pos = ChessPosition.fromAlgebraic(tokens[1]);
-                        socketClient.sendHighlight(authToken, gameID, pos);
-                    }
-                    case "move" -> {
-                        if (tokens.length < 3) {
-                            System.out.println("Usage: move <start> <end> [promo]");
-                            break;
-                        }
-                        ChessPosition start = ChessPosition.fromAlgebraic(tokens[1]);
-                        ChessPosition end = ChessPosition.fromAlgebraic(tokens[2]);
-                        ChessPiece.PieceType promo = null;
-                        if (tokens.length == 4) {
-                            promo = ChessPiece.PieceType.valueOf(tokens[3].toUpperCase());
-                        }
-                        ChessMove move = new ChessMove(start, end, promo);
-                        socketClient.sendMove(authToken, gameID, pov, move);
-                    }
-                    case "resign" -> socketClient.sendResign(authToken, gameID);
-                    case "leave" -> {
-                        socketClient.sendLeave(authToken, gameID);
-                        System.out.println("Leaving game...");
-                        return;
-                    }
-                    default -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
-                            "Unknown command: " + command + EscapeSequences.RESET_TEXT_COLOR);
-                }
+                handleCommand(command, tokens);
             } catch (Exception e) {
                 System.out.println("Command failed: " + e.getMessage());
             }
         }
     }
+    private void handleCommand(String command, String[] tokens) {
+        switch (command) {
+            case "help" -> HelpHelper.printGameplayHelp();
+            case "redraw" -> drawInitialBoard();
+            case "highlight" -> handleHighlight(tokens);
+            case "move" -> handleMove(tokens);
+            case "resign" -> socketClient.sendResign(authToken, gameID);
+            case "leave" -> {
+                socketClient.sendLeave(authToken, gameID);
+                System.out.println("Leaving game...");
+                System.exit(0);
+            }
+            default -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Unknown command: " + command + EscapeSequences.RESET_TEXT_COLOR);
+        }
+    }
+    private void handleHighlight(String[] tokens) {
+        if (tokens.length != 2) {
+            System.out.println("Usage: highlight <square>");
+            return;
+        }
+        ChessPosition pos = ChessPosition.fromAlgebraic(tokens[1]);
+        socketClient.sendHighlight(authToken, gameID, pos);
+    }
+    private void handleMove(String[] tokens) {
+        if (tokens.length < 3) {
+            System.out.println("Usage: move <start> <end> [promo]");
+            return;
+        }
 
+        ChessPosition start = ChessPosition.fromAlgebraic(tokens[1]);
+        ChessPosition end = ChessPosition.fromAlgebraic(tokens[2]);
+        ChessPiece.PieceType promo = null;
+        if (tokens.length == 4) {
+            promo = ChessPiece.PieceType.valueOf(tokens[3].toUpperCase());
+        }
 
+        ChessMove move = new ChessMove(start, end, promo);
+        socketClient.sendMove(authToken, gameID, pov, move);
+    }
     private void drawInitialBoard() {
         BoardDisplay.displayBoard(currentBoard, pov, null);
     }
-
     private void handleServerMessage(ServerMessage msg) {
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {

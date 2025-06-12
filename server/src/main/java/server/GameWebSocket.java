@@ -3,7 +3,6 @@ package server;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import server.WebSocketHandler;
 import websocket.commands.UserGameCommand;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebSocket
 public class GameWebSocket {
 
-    private static final Gson gson = new Gson();
+    private static final Gson gSon = new Gson();
     private static WebSocketHandler handler;
     private static final Map<Session, Integer> sessionToGameID = new ConcurrentHashMap<>();
 
@@ -28,7 +27,7 @@ public class GameWebSocket {
     public void onMessage(Session session, String message) {
         try {
             // Deserialize the message to extract game ID and auth token
-            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = gSon.fromJson(message, UserGameCommand.class);
             int gameID = command.getGameID();
 
             // Save session to game ID mapping if not already done
@@ -42,7 +41,7 @@ public class GameWebSocket {
             e.printStackTrace();
             try {
                 session.getRemote().sendString(
-                        gson.toJson(new websocket.messages.ErrorMessage("Error: Invalid message format."))
+                        gSon.toJson(new websocket.messages.ErrorMessage("Error: Invalid message format."))
                 );
             } catch (Exception ignored) {
             }

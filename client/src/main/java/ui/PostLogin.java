@@ -87,6 +87,7 @@ public class PostLogin {
             System.out.println("Usage: join <game-number> <WHITE|BLACK>");
             return;
         }
+        //why is this duplacite?
 
         int index;
         try {
@@ -104,7 +105,7 @@ public class PostLogin {
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
-
+// this is not dupliacted
         int gameID = cachedGames.get(index).getGameID();
         String playerColor = tokens[2].toUpperCase();
         if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
@@ -128,6 +129,7 @@ public class PostLogin {
     }
 
     private void handleObserve(String[] tokens) throws Exception {
+        //not dupe
         if (tokens.length < 2) {
             System.out.println("Usage: observe <game-number>");
             return;

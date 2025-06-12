@@ -53,21 +53,17 @@ public class WebSocketHandler {
             JsonObject jsonObj = gson.fromJson(messageJson, JsonObject.class);
             String commandType = jsonObj.get("commandType").getAsString();
             String authToken = jsonObj.get("authToken").getAsString();
-
             AuthData auth = authDAO.getAuth(authToken);
             if (auth == null) {
                 send(session, new ErrorMessage("Invalid authToken"));
                 return;
             }
-
             GameData game = gameDAO.getGame(gameID);
             if (game == null || game.game() == null) {
                 send(session, new ErrorMessage("Game not found or is corrupted"));
                 return;
             }
-
             sessionToUsername.put(session, auth.getUsername());
-
             switch (commandType) {
                 case "CONNECT" -> {
                     GameData latestGame = gameDAO.getGame(gameID);
@@ -75,34 +71,25 @@ public class WebSocketHandler {
                     System.out.println("[DEBUG] On CONNECT - Game Board:\n" + latestGame.game().getBoard());
                     broadcastExcept(gameID, session, new NotificationMessage(notifyConnected(auth.getUsername(), game)));
                 }
-
-
                 case "MAKE_MOVE" -> {
                     MakeMoveCommand cmd = gson.fromJson(messageJson, MakeMoveCommand.class);
                     ChessGame g = game.game();
-
                     if (g.getGameOver()) {
                         send(session, new ErrorMessage("Game is already over"));
                         return;
                     }
-
                     ChessMove move = cmd.getMove();
                     if (g.getTeamTurn() == ChessGame.TeamColor.WHITE && !auth.getUsername().equals(game.getWhiteUsername())
                             || g.getTeamTurn() == ChessGame.TeamColor.BLACK && !auth.getUsername().equals(game.getBlackUsername())) {
                         send(session, new ErrorMessage("Not your turn"));
                         return;
                     }
-
                     if (!g.validMoves(move.getStartPosition()).contains(move)) {
                         send(session, new ErrorMessage("Illegal move"));
-                        return;
-                    }
-
+                        return;}
                     g.makeMove(move);
-
                     broadcast(gameID, new LoadGameMessage(g));
                     broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " moved: " + move));
-
                     if (g.isInCheckmate(g.getTeamTurn())) {
                         broadcast(gameID, new NotificationMessage("Checkmate!"));
                     } else if (g.isInStalemate(g.getTeamTurn())) {
@@ -112,52 +99,42 @@ public class WebSocketHandler {
                     }
                     gameDAO.updateGame(game);
                 }
-
                 case "HIGHLIGHT_MOVES" -> {
                     HighlightMovesCommand cmd = gson.fromJson(messageJson, HighlightMovesCommand.class);
                     ChessPosition pos = cmd.getPosition();
                     if (pos == null) {
                         send(session, new ErrorMessage("Invalid position for highlight."));
-                        return;
-                    }
+                        return;}
                     Collection<ChessMove> moves = game.game().validMoves(pos);
                     Set<ChessPosition> targets = moves.stream().map(ChessMove::getEndPosition).collect(Collectors.toSet());
                     send(session, new HighlightMessage(targets));
                 }
-
-
                 case "LEAVE" -> {
                     leaveGame(gameID, session);
                     LeaveRequest leaveRequest = new LeaveRequest(authToken, gameID);
                     LeaveResult leaveResult = gameplayService.leave(leaveRequest);
-
                     if (leaveResult.getMessage() != null) {
                         send(session, new ErrorMessage("Leave failed: " + leaveResult.getMessage()));
                     } else {
                         broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " left the game."));
                     }
                 }
-
                 case "RESIGN" -> {
                     if (!auth.getUsername().equals(game.getWhiteUsername()) &&
                             !auth.getUsername().equals(game.getBlackUsername())) {
                         send(session, new ErrorMessage("Only players may resign"));
                         return;
                     }
-
                     if (game.game().getGameOver()) {
                         send(session, new ErrorMessage("Game already over"));
                         return;
                     }
-
                     game.game().setGameOver(true);
                     gameDAO.updateGame(game);
                     broadcast(gameID, new NotificationMessage(auth.getUsername() + " resigned."));
                 }
-
                 default -> send(session, new ErrorMessage("Unknown command type: " + commandType));
             }
-
         } catch (Exception e) {
             e.printStackTrace(); // Server-side debug
             try {
