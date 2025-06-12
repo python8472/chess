@@ -3,12 +3,10 @@ package ui;
 import chess.*;
 import com.google.gson.Gson;
 import websocket.messages.*;
-
 import java.util.Scanner;
 
 public class Gameplay {
     private final Scanner scanner = new Scanner(System.in);
-    private final String playerColor;
     private final String authToken;
     private final int gameID;
     private ChessBoard currentBoard = new ChessBoard();
@@ -17,7 +15,6 @@ public class Gameplay {
     private final Gson gson = new Gson();  // ADDED
 
     public Gameplay(String username, String authToken, int gameID, String color) {
-        this.playerColor = color;
         this.authToken = authToken;
         this.gameID = gameID;
         this.pov = (color == null || color.equalsIgnoreCase("BLACK")) ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
@@ -25,19 +22,16 @@ public class Gameplay {
     }
 
     public void run() {
-        System.out.println(EscapeSequences.ERASE_SCREEN + EscapeSequences.SET_TEXT_BOLD +
-                "Now viewing game as " + playerColor + EscapeSequences.RESET_TEXT_BOLD_FAINT);
         try {
-            System.out.println("[DEBUG] Attempting WebSocket connection...");
+
             socketClient.connect(authToken, gameID);
-            System.out.println("[DEBUG] WebSocket connect() completed.");
         } catch (Exception e) {
-            System.out.println("WebSocket connection failed: " + e.getMessage());
+            System.out.println("Error: connection failed " + e.getMessage());
             return;
         }
 
         // Wait for LOAD_GAME before continuing
-        System.out.println("[DEBUG] Waiting for game state from server...");
+
         while (currentBoard == null || currentBoard.getPiece(new ChessPosition(1, 1)) == null) {
             try {
                 Thread.sleep(50); // Wait for board to be set from server message
@@ -107,7 +101,7 @@ public class Gameplay {
                     System.out.println("[ERROR] Received null game from server.");
                 } else {
                     currentBoard = load.getGame().getBoard();
-                    System.out.println("[DEBUG] LoadGameMessage received: " + load.getGame());
+
                     drawInitialBoard();
                 }
             }

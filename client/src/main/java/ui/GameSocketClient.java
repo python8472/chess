@@ -30,16 +30,13 @@ public class GameSocketClient {
 
     public void connect(String authToken, int gameID) throws Exception {
         String fullUri = serverUrl + "?authToken=" + authToken + "&gameID=" + gameID;
-        System.out.println("[DEBUG] Connecting to WebSocket URI: " + fullUri);
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
         try {
             container.connectToServer(this, URI.create(fullUri));
-            System.out.println("[DEBUG] WebSocket container connected successfully.");
         } catch (Exception e) {
             System.err.println("[ERROR] WebSocket handshake failed:");
-            e.printStackTrace();
             throw e;
         }
 
@@ -79,7 +76,7 @@ public class GameSocketClient {
     @OnOpen
     public void onOpen(Session session) {
         this.session = session;
-        System.out.println("[WebSocket] Connected to server.");
+
     }
 
     @OnMessage

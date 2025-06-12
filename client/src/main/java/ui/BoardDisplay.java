@@ -4,6 +4,8 @@ import chess.*;
 
 import java.util.Collection;
 
+import static ui.EscapeSequences.EMPTY;
+
 public class BoardDisplay {
 
     public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov) {
@@ -11,7 +13,6 @@ public class BoardDisplay {
     }
 
     public static void displayBoard(ChessBoard board, ChessGame.TeamColor pov, Collection<ChessPosition> highlights) {
-        debugBoardState(board);  // ← added debug
 
         int[] rows = (pov == ChessGame.TeamColor.WHITE)
                 ? new int[]{8, 7, 6, 5, 4, 3, 2, 1}
@@ -44,27 +45,23 @@ public class BoardDisplay {
     private static String getColumnHeader(char[] cols) {
         StringBuilder sb = new StringBuilder();
         for (char col : cols) {
-            sb.append(" ").append(" ").append(col).append(" ");
+            sb.append("   ").append(col).append("       "); // Wider spacing between columns
         }
         return sb.toString();
     }
 
     private static String getSymbolWithBackground(ChessPiece piece, boolean isLightSquare, boolean isHighlighted) {
-        String bgColor;
-        if (isHighlighted) {
-            bgColor = EscapeSequences.SET_BG_COLOR_YELLOW;
-        } else {
-            bgColor = isLightSquare
-                    ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY
-                    : EscapeSequences.SET_BG_COLOR_DARK_GREY;
-        }
+        String bgColor = isHighlighted
+                ? EscapeSequences.SET_BG_COLOR_YELLOW
+                : (isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY);
 
-        String symbol;
+        // 5-wide fixed cell
+        String content;
         if (piece == null) {
-            symbol = "   "; // 3-char empty block
+            content = EMPTY + EMPTY + EMPTY;  // 5 spaces
         } else {
-            String pieceSymbol = switch (piece.getTeamColor()) {
-                case WHITE -> switch (piece.getPieceType()) {
+            String symbol = switch (piece.getTeamColor()) {
+                case BLACK -> switch (piece.getPieceType()) {
                     case KING -> EscapeSequences.WHITE_KING;
                     case QUEEN -> EscapeSequences.WHITE_QUEEN;
                     case BISHOP -> EscapeSequences.WHITE_BISHOP;
@@ -72,7 +69,7 @@ public class BoardDisplay {
                     case ROOK -> EscapeSequences.WHITE_ROOK;
                     case PAWN -> EscapeSequences.WHITE_PAWN;
                 };
-                case BLACK -> switch (piece.getPieceType()) {
+                case WHITE -> switch (piece.getPieceType()) {
                     case KING -> EscapeSequences.BLACK_KING;
                     case QUEEN -> EscapeSequences.BLACK_QUEEN;
                     case BISHOP -> EscapeSequences.BLACK_BISHOP;
@@ -81,26 +78,9 @@ public class BoardDisplay {
                     case PAWN -> EscapeSequences.BLACK_PAWN;
                 };
             };
-            symbol = " " + pieceSymbol + " ";
+            content = EMPTY + symbol + EMPTY;
         }
 
-        return bgColor + symbol + EscapeSequences.RESET_BG_COLOR;
-    }
-
-    // 🧠 DEBUG method to show piece contents directly
-    private static void debugBoardState(ChessBoard board) {
-        System.out.println("[DEBUG] Raw piece matrix:");
-        for (int row = 8; row >= 1; row--) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece == null) {
-                    System.out.print("____ ");
-                } else {
-                    String abbrev = piece.getTeamColor().toString().charAt(0) + piece.getPieceType().toString().substring(0, 1);
-                    System.out.print(abbrev + "  ");
-                }
-            }
-            System.out.println();
-        }
+        return bgColor + content + EscapeSequences.RESET_BG_COLOR;
     }
 }

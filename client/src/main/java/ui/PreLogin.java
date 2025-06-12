@@ -13,7 +13,7 @@ public class PreLogin {
     public void run() {
         System.out.println(EscapeSequences.ERASE_SCREEN +
                 EscapeSequences.SET_TEXT_BOLD +
-                "Welcome to Chess!" +
+                "Welcome to Chess by Nick!" +
                 EscapeSequences.RESET_TEXT_BOLD_FAINT);
         HelpHelper.printPreLoginHelp();
 
@@ -29,7 +29,7 @@ public class PreLogin {
                 switch (command) {
                     case "help" -> HelpHelper.printPreLoginHelp();
                     case "quit" -> {
-                        System.out.println("Goodbye!");
+                        System.out.println("Cya!");
                         return;
                     }
                     case "register" -> handleRegister(tokens);
@@ -60,7 +60,7 @@ public class PreLogin {
             new PostLogin(tokens[1], result.getAuthToken()).run();
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
-                    "Registration failed: " + result.getMessage() +
+                    "Registration failed- " + result.getMessage() +
                     EscapeSequences.RESET_TEXT_COLOR);
         }
     }
@@ -80,7 +80,7 @@ public class PreLogin {
             new PostLogin(tokens[1], result.getAuthToken()).run();
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
-                    "Login failed: " + result.getMessage() +
+                    "Login " + result.getMessage() +
                     EscapeSequences.RESET_TEXT_COLOR);
         }
     }
