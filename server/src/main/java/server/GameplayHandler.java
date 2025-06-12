@@ -21,8 +21,21 @@ public class GameplayHandler {
         MoveRequest request = gson.fromJson(req.body(), MoveRequest.class);
         MoveResult result = gameplayService.makeMove(request);
         res.type("application/json");
+
+        // Status logic
+        if (result.getMessage() != null) {
+            if (result.getMessage().toLowerCase().contains("unauthorized")) {
+                res.status(401);
+            } else {
+                res.status(400); // bad request for illegal moves, invalid game ID, etc.
+            }
+        } else {
+            res.status(200); // move successful
+        }
+
         return gson.toJson(result);
     };
+
 
     public Route handleResign = (Request req, Response res) -> {
         ResignRequest request = gson.fromJson(req.body(), ResignRequest.class);

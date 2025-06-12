@@ -27,9 +27,6 @@ public class Gameplay {
     public void run() {
         System.out.println(EscapeSequences.ERASE_SCREEN + EscapeSequences.SET_TEXT_BOLD +
                 "Now viewing game as " + playerColor + EscapeSequences.RESET_TEXT_BOLD_FAINT);
-
-        drawInitialBoard();
-
         try {
             System.out.println("[DEBUG] Attempting WebSocket connection...");
             socketClient.connect(authToken, gameID);
@@ -39,6 +36,15 @@ public class Gameplay {
             return;
         }
 
+        // Wait for LOAD_GAME before continuing
+        System.out.println("[DEBUG] Waiting for game state from server...");
+        while (currentBoard == null || currentBoard.getPiece(new ChessPosition(1, 1)) == null) {
+            try {
+                Thread.sleep(50); // Wait for board to be set from server message
+            } catch (InterruptedException ignored) {}
+        }
+
+        // Main input loop
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "(gameplay) > " + EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
@@ -88,6 +94,7 @@ public class Gameplay {
         }
     }
 
+
     private void drawInitialBoard() {
         BoardDisplay.displayBoard(currentBoard, pov);
     }
@@ -100,6 +107,7 @@ public class Gameplay {
                     System.out.println("[ERROR] Received null game from server.");
                 } else {
                     currentBoard = load.getGame().getBoard();
+                    System.out.println("[DEBUG] LoadGameMessage received: " + load.getGame());
                     drawInitialBoard();
                 }
             }

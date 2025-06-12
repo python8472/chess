@@ -28,42 +28,50 @@ public class GameplayService {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
             if (auth == null) {
-                return null;
+                return new MoveResult("Error: invalid auth token");
             }
 
             GameData gameData = gameDAO.getGame(request.gameID());
             if (gameData == null) {
-                return null;
+                return new MoveResult("Error: invalid game ID");
             }
 
             ChessGame game = gameData.game();
 
+            // Validate turn
             if (game.getTeamTurn() != request.playerColor()) {
-                return null;
+                return new MoveResult("Error: not your turn");
             }
 
+            // Validate move
             Collection<ChessMove> legalMoves = game.validMoves(request.move().getStartPosition());
-            boolean isLegal = legalMoves.stream().anyMatch(move -> move.equals(request.move()));
-            if (!isLegal) {
-                return null;
+            if (legalMoves == null || !legalMoves.contains(request.move())) {
+                return new MoveResult("Error: illegal move");
             }
 
+            // Apply move
             game.makeMove(request.move());
-            gameDAO.updateGame(gameData);
+            gameDAO.updateGame(gameData); // Persist updated game state
 
-            // Detect endgame conditions
+            // Endgame checks
             ChessGame.TeamColor nextTurn = game.getTeamTurn();
-            boolean inCheck = game.isInCheck(nextTurn);
-            boolean noMoves = GameHelper.hasNoLegalMoves(game.getBoard(), nextTurn);
-
-            if (inCheck && noMoves) {
-            } else if (!inCheck && noMoves) {
+            if (game.isInCheckmate(nextTurn)) {
+                return new MoveResult("Checkmate");
+            } else if (game.isInStalemate(nextTurn)) {
+                return new MoveResult("Stalemate");
+            } else if (game.isInCheck(nextTurn)) {
+                return new MoveResult("Check");
             }
 
-        } catch (DataAccessException | InvalidMoveException ignored) {
+            return new MoveResult(); // Move successful, no special condition
+
+        } catch (DataAccessException e) {
+            return new MoveResult("Data error: " + e.getMessage());
+        } catch (InvalidMoveException e) {
+            return new MoveResult("Error: " + e.getMessage());
         }
-        return null;
     }
+
 
     public ResignResult resign(ResignRequest request) {
         try {

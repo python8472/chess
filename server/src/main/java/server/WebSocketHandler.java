@@ -68,9 +68,9 @@ public class WebSocketHandler {
 
             switch (commandType) {
                 case "CONNECT" -> {
-                    ChessGame cg = game.game();
-                    System.out.println("[DEBUG] On CONNECT - Game Board:\n" + cg.getBoard());
-                    send(session, new LoadGameMessage(cg));
+                    GameData latestGame = gameDAO.getGame(gameID);
+                    send(session, new LoadGameMessage(latestGame.game()));
+                    System.out.println("[DEBUG] On CONNECT - Game Board:\n" + latestGame.game().getBoard());
                     broadcastExcept(gameID, session, new NotificationMessage(notifyConnected(auth.getUsername(), game)));
                 }
 
@@ -97,7 +97,7 @@ public class WebSocketHandler {
                     }
 
                     g.makeMove(move);
-                    gameDAO.updateGame(game);
+
                     broadcast(gameID, new LoadGameMessage(g));
                     broadcastExcept(gameID, session, new NotificationMessage(auth.getUsername() + " moved: " + move));
 
@@ -108,6 +108,7 @@ public class WebSocketHandler {
                     } else if (g.isInCheck(g.getTeamTurn())) {
                         broadcast(gameID, new NotificationMessage("Check!"));
                     }
+                    gameDAO.updateGame(game);
                 }
 
                 case "HIGHLIGHT_MOVES" -> {

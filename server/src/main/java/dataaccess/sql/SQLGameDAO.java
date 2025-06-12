@@ -58,6 +58,9 @@ public class SQLGameDAO implements GameDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    System.out.println("[DEBUG] Deserialized game: " + game);
+                    System.out.println("[DEBUG] Deserialized board: " + game.getBoard());
+
                     return new GameData(
                             gameID,
                             rs.getString("gameName"),
@@ -72,12 +75,14 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("getGame failed", e);
         }
+
     }
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
         String sql = "UPDATE games SET whitePlayer=?, blackPlayer=?, game=? WHERE id=?";
         String gameJson = gson.toJson(gameData.game());
+        System.out.println("[DEBUG] Saved game: " + gson.toJson(gameData.game()));
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

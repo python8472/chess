@@ -10,7 +10,6 @@ public class ChessGame {
 
     public ChessGame() {
         this.cBoard = new ChessBoard();
-        this.cBoard.resetBoard();
     }
 
     public TeamColor getTeamTurn() {
@@ -139,10 +138,6 @@ public class ChessGame {
     }
 
     public ChessBoard getBoard() {
-        if (cBoard == null) {
-            cBoard = new ChessBoard();
-            cBoard.resetBoard();
-        }
         return cBoard;
     }
 

@@ -11,11 +11,17 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    //make board
-    private final ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
-        // resetBoard();
+    }
+
+    public ChessPiece[][] getSquares() {
+        return squares;
+    }
+
+    public void setSquares(ChessPiece[][] squares) {
+        this.squares = squares;
     }
 
     /**

@@ -43,6 +43,8 @@ public class GameSocketClient {
             throw e;
         }
 
+        sendCommand(new ConnectCommand(authToken, gameID));
+
         // Optional: wait for @OnOpen to confirm
     }
 
