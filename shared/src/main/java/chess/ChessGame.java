@@ -10,6 +10,7 @@ public class ChessGame {
 
     public ChessGame() {
         this.cBoard = new ChessBoard();
+        this.cBoard.resetBoard();
     }
 
     public TeamColor getTeamTurn() {
@@ -133,6 +134,14 @@ public class ChessGame {
         return !isInCheck(teamColor) && GameHelper.hasNoLegalMoves(getBoard(), teamColor);
     }
 
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "whoseTurn=" + whoseTurn +
+                ", cBoard=" + cBoard +
+                '}';
+    }
+
     public void setBoard(ChessBoard board) {
         this.cBoard = board;
     }
@@ -143,18 +152,15 @@ public class ChessGame {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {return false;}
-        ChessGame that = (ChessGame) o;
-        return whoseTurn == that.whoseTurn && Objects.equals(cBoard, that.cBoard);
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return whoseTurn == chessGame.whoseTurn && Objects.equals(cBoard, chessGame.cBoard);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(whoseTurn, cBoard);
-    }
-
-    @Override
-    public String toString() {
-        return "ChessGame{" + "whoseTurn=" + whoseTurn + ", board=" + cBoard + '}';
     }
 }
