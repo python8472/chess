@@ -31,10 +31,7 @@ public class BoardDisplay {
                         ? ((row + colIndex) % 2 == 0)
                         : ((row + (7 - colIndex)) % 2 == 0);
 
-                // 🧠 DEBUG highlight check
-                if (highlights != null && isHighlighted) {
-                    System.out.println("Highlighting square: " + colChar + row);
-                }
+
 
                 System.out.print(getSymbolWithBackground(piece, isLight, isHighlighted));
             }
