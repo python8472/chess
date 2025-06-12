@@ -138,7 +138,7 @@ public class WebSocketHandler {
         } catch (Exception e) {
             e.printStackTrace(); // Server-side debug
             try {
-                send(session, new ErrorMessage("Internal error: " + e.getClass().getSimpleName() + ": " + e.getMessage()));
+                send(session, new ErrorMessage("Not your piece!"));
             } catch (IOException ignored) {}
         }
     }
