@@ -24,25 +24,4 @@ public class ServerUtils {
         return connection;
     }
 
-//    public static void sendRequestBody(HttpURLConnection connection, Object requestObj) throws IOException {
-//        try (OutputStream os = connection.getOutputStream()) {
-//            byte[] input = GSON.toJson(requestObj).getBytes();
-//            os.write(input);
-//        }
-//    }
-//
-//    public static <T> T readResponse(HttpURLConnection connection, Class<T> responseClass) throws IOException {
-//        InputStream stream = (connection.getResponseCode() >= 400)
-//                ? connection.getErrorStream()
-//                : connection.getInputStream();
-//
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-//            StringBuilder responseJson = new StringBuilder();
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                responseJson.append(line);
-//            }
-//            return GSON.fromJson(responseJson.toString(), responseClass);
-//        }
-//    }
 }
