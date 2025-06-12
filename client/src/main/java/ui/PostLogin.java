@@ -33,7 +33,7 @@ public class PostLogin {
                     "(" + username + ") > " +
                     EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
-            if (input.isEmpty()) continue;
+            if (input.isEmpty()) {continue;}
 
             String[] tokens = input.split("\\s+");
             String command = tokens[0].toLowerCase();
@@ -93,11 +93,13 @@ public class PostLogin {
         try {
             index = Integer.parseInt(tokens[1]) - 1;
         } catch (NumberFormatException e) {
+            //How is this dupe
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
                     "Error: game number must be an integer. Use 'list' to see available games." +
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
+        //frick dupe
 
         if (index < 0 || index >= cachedGames.size()) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
@@ -126,14 +128,14 @@ public class PostLogin {
                     "Failed to join game: " + result.getMessage() +
                     EscapeSequences.RESET_TEXT_COLOR);
         }
+        //frick dupe again
     }
 
     private void handleObserve(String[] tokens) throws Exception {
         //not dupe
         if (tokens.length < 2) {
             System.out.println("Usage: observe <game-number>");
-            return;
-        }
+            return;} //barf
 
         int index;
         try {
@@ -144,13 +146,13 @@ public class PostLogin {
                     EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
+        //frick dupe again!!
 
         if (index < 0 || index >= cachedGames.size()) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED +
                     "Error: invalid game number. Use 'list' to see available games." +
                     EscapeSequences.RESET_TEXT_COLOR);
-            return;
-        }
+            return;}
 
         int gameID = cachedGames.get(index).getGameID();
         JoinGameResult result = facade.joinGame(new JoinGameRequest("OBSERVER", gameID), authToken);

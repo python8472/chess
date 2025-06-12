@@ -144,7 +144,7 @@ public class WebSocketHandler {
     }
 
     private void send(Session session, ServerMessage msg) throws IOException {
-        if (session.isOpen()) session.getRemote().sendString(gson.toJson(msg));
+        if (session.isOpen()) {session.getRemote().sendString(gson.toJson(msg));}
     }
 
     private void broadcast(int gameID, ServerMessage msg) {
@@ -166,8 +166,8 @@ public class WebSocketHandler {
     }
 
     private String notifyConnected(String username, GameData game) {
-        if (username.equals(game.getWhiteUsername())) return username + " connected as white";
-        if (username.equals(game.getBlackUsername())) return username + " connected as black";
+        if (username.equals(game.getWhiteUsername())) {return username + " connected as white";}
+        if (username.equals(game.getBlackUsername())) {return username + " connected as black";}
         return username + " joined as observer";
     }
 }

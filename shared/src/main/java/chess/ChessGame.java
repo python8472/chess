@@ -143,7 +143,7 @@ public class ChessGame {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessGame that = (ChessGame) o;
         return whoseTurn == that.whoseTurn && Objects.equals(cBoard, that.cBoard);
     }
